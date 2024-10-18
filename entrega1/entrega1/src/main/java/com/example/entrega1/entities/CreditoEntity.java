@@ -41,6 +41,40 @@ public class CreditoEntity {
     @Column(name = "comiad")
     private double comiad;    // VALOR DE COMICIÓN ADMINISTRATIVA
     //-----------------------------------------------------------------------------------------//
+    // ----------------------------[DOCUMENTOS DE SOPORTE]---------------------------//
+    //-----------------------------------------------------------------------------------------//
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    private byte[] comprobanteIngresos; // COMPROBANTE DE INGRESOS
+    //-----------------------------------------------------------------------------------------//
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    private byte[] certificadoAvaluo; // CERTIFICADO DE AVALUO
+    //-----------------------------------------------------------------------------------------//
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    private byte[] historialCrediticio; // HISTORIAL CREDITICIO
+    //-----------------------------------------------------------------------------------------//
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    private byte[] escrituraPrimeraVivienda; // ESCRITURA DE LA PRIMERA VIVIENDA
+    //-----------------------------------------------------------------------------------------//
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    private byte[] planNegocios; // PLAN DE NEGOCIOS
+    //-----------------------------------------------------------------------------------------//
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    private byte[] estadosFinancieros; // ESTADOS FINANCIEROS
+    //-----------------------------------------------------------------------------------------//
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    private byte[] presupuestoRemodelacion; // PRESUPUESTO DE REMODELACIÓN
+    //-----------------------------------------------------------------------------------------//
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    private byte[] dicom; // DICOM
+    //-----------------------------------------------------------------------------------------//
     //-----------------------------------------------------------------------------------------//
     @Column(name = "state")
     private String state;    // VALOR DE ESTADO DE PRÉSTAMO -> SON 3

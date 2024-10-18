@@ -2,8 +2,10 @@ package com.example.entrega1.services;
 //---------------------------------[IMPORTS DE SERVICO]----------------------------------------//
 import com.example.entrega1.entities.CreditoEntity;
 import com.example.entrega1.entities.UsuarioEntity;
+import com.example.entrega1.entities.AhorrosEntity;
 import com.example.entrega1.repositories.CreditoRepository;
 import com.example.entrega1.repositories.UsuarioRepository;
+import com.example.entrega1.repositories.AhorrosRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,8 @@ public class UsuarioService {
     UsuarioRepository usuarioRepository;
     @Autowired
     CreditoRepository creditoRepository;
+    @Autowired
+    AhorrosRepository ahorrosRepository;
     //---------------------------------------[CRUD]-----------------------------------------------//
     // * OBTENER TODOS LOS CLIENTE -> ENTREGA UNA LISTA DE CLIENTES
     public ArrayList<UsuarioEntity> getUsuarios() {
@@ -50,6 +54,11 @@ public class UsuarioService {
     }
     //------------------------------[OPERACIONES CLIENTE]------------------------------------//
     //--------------------------------------[GETTERS]--------------------------------------------//
+    // + OBTENER TODOS LOS CLIENTES
+    public Object getAllUsuarios() {
+        return null;
+    }
+    //------------------------------------------------------------------//
     // + OBTENER CLIENTE POR ID -> REGRESA EXCEPCIÓN SI NO EXISTE
     public UsuarioEntity getUsuarioById(Long id) {
         return usuarioRepository.findById(id).get();
@@ -69,29 +78,18 @@ public class UsuarioService {
     public List<String> findAllRuts() {
         return usuarioRepository.findAllRuts();
     }
-    //----------------------------------------------------------------------------------------------//
-    //------------------------------[OPERACIONES CREDITO]-----------------------------------//
-    /*
-    // + OBTENER HISTORIAL DE CREDITO DE UN USUARIO POR RUT
-    public  List<CreditoEntity> getCreditosByRut(String rut){
-        if(rut == null){
-            throw new RuntimeException("RUT NO PUEDE SER NULO");
-        } else if (!usuarioRepository.existsByRut(rut)){
-            throw new RuntimeException("USUARIO NO ENCONTRADO POR RUT");
-        }else {
-            UsuarioEntity usuario = usuarioRepository.findByRut(rut).get(0); // COMO LOS RUTS NO RE PEPITEN, OBTENEMOS AL PRIMERO
-            return usuario.getCreditos();
+    //------------------------------[OPERACIONES AHORRO]------------------------------------//
+    public int obtenerValorPositivoMasPequeno(List<AhorrosEntity> ahorros) {
+        int valorPositivoMasPequeno = Integer.MAX_VALUE;
+        boolean foundPositive = false;
+
+        for (AhorrosEntity ahorro : ahorros) {
+            int transaccion = ahorro.getTransaccion();
+            if (transaccion > 0 && transaccion < valorPositivoMasPequeno) {
+                valorPositivoMasPequeno = transaccion;
+                foundPositive = true;
+            }
         }
+        return foundPositive ? valorPositivoMasPequeno : -1; // Devuelve -1 si no se encuentra ningún valor positivo
     }
-    public CreditoEntity addCreditoToUsuario(String usariorut, CreditoEntity credito) {
-        if(usariorut == null){
-            throw new RuntimeException("RUT NO PUEDE SER NULO");
-        } else if (!usuarioRepository.existsByRut(usariorut)){
-            throw new RuntimeException("USUARIO NO ENCONTRADO POR RUT");
-        }
-        UsuarioEntity usuario = usuarioRepository.findByRut(usariorut).get(0); // COMO LOS RUTS NO RE PEPITEN, OBTENEMOS AL PRIMERO
-        credito.setUsuario(usuario);
-        return creditoRepository.save(credito);
-    }
-     */
 }

@@ -58,6 +58,12 @@ public class AhorrosService {
     //--------------------------------------[AGREGAR]--------------------------------------------//
     // AGREGAR AHORRO A USUARIO POR SU RUT
     public AhorrosEntity addAhorroToUsuario(AhorrosEntity ahorro, String rut) {
+        if (rut == null) {
+            throw new IllegalArgumentException("RUT NO PUEDE SER NULO");
+        } else if (usuarioRepository.findByRut(rut).isEmpty()) {
+            throw new IllegalArgumentException("NO EXISTE USUARIO CON RUT: " + rut);
+
+        }
         UsuarioEntity usuario = usuarioRepository.findByRut(rut).get(0);
         ahorro.setUsuario(usuario);
         return ahorrosRepository.save(ahorro);

@@ -41,11 +41,20 @@ public class UsuarioEntity {
     @Column(name = "houses", nullable = false)
     private int houses = 0;   // VALOR DE NÚMERO DE CASAS
     //-----------------------------------------------------------------------------------------//
+    @Column(name = "valorpropiedad", nullable = true)
+    private int valorpropiedad = 0;   // VALOR DE PROPIEDAD
+    //-----------------------------------------------------------------------------------------//
     @Column(name = "ingresos", nullable = false)
-    private int ingresos = 0;   // VALOR DE INGRESOS MENSUALES
+    private int ingresos = 0;   // VALOR DE INGRESOS MENSUALES DEL CLIENTE
+    //-----------------------------------------------------------------------------------------//
+    @Column(name = "sumadeuda", nullable = true)
+    private int sumadeuda = 0;   // VALOR DE DEUDA
     //-----------------------------------------------------------------------------------------//
     @Column(name = "objective", nullable = true)
     private String objective; // VALOR DE OBJETIVO -> ES TEXTO
+    //-----------------------------------------------------------------------------------------//
+    @Column(name = "independiente", nullable = true)
+    private String independiente; // VALOR DE SI EL TRABAJADOR ES  INDEPENDIENTE O NO -> ES BOOLEANO
     //-----------------------------------------------------------------------------------------//
     // LISTA DE AHORROS (HISTORIAL)
     @JsonManagedReference
@@ -62,21 +71,32 @@ public class UsuarioEntity {
     @JsonManagedReference
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "usuario", orphanRemoval = true)
     private List<CreditoEntity> creditos = new ArrayList<>(); // LISTA DE CRÉDITOS -> HISTORIAL DE CREDITOS
-
+    //-----------------------------------------------------------------------------------------//
     // LISTA DE NOTIFICACIONES
     @ElementCollection
     @CollectionTable(name = "usuario_notifications", joinColumns = @JoinColumn(name = "usuario_id"))
     @Column(name = "notifications")
     private List<String> notifications = new ArrayList<>();  // List of notifications -> // VALOR DE NOTIFICACIONES ----> ES UNA LISTA DE NOTIFICACIONES
     //-----------------------------------------------------------------------------------------//
+    // ----------------------------[CONSTRUCTOR DE USUARIO]---------------------------// -> OPCIÓN POR CREACIÓN POR POSTMAN
+    //-----------------------------------------------------------------------------------------//
+    public <E> UsuarioEntity(long id, String rut, String name, int age, int workage, List<String> documents, int houses, int valorpropiedad, int ingresos, int sumadeuda, String objective, String independiente, ArrayList<E> ahorros, Object solicitud, ArrayList<E> creditos, ArrayList<E> notifications) {
+    }
+    //-----------------------------------------------------------------------------------------//
     // -------------------------[CONDICIONES DE LIMITACIONES]-------------------------// -> OPCIÓN POR CREACIÓN POR POSTMAN
     //-----------------------------------------------------------------------------------------//
     // LIMITACIÓN DE VALOR; SOLO SE ACEPTAN RUTS VÁLIDOS
     public void setRut(String rut) {
-        if (rut == null || rut.isEmpty() || !rut.matches("^[0-9]{7,8}-[0-9Kk]$")) {
+        if (rut == null || rut.isEmpty()) {
             throw new IllegalArgumentException("EL RUT DEBE SER VÁLIDO");
         }
-        this.rut = rut;
+        // Remove dots from the RUT
+        String cleanedRut = rut.replace(".", "");
+        // Validate the cleaned RUT
+        if (!cleanedRut.matches("^[0-9]{7,8}-[0-9Kk]$")) {
+            throw new IllegalArgumentException("EL RUT DEBE SER VÁLIDO");
+        }
+        this.rut = cleanedRut;
     }
     //-----------------------------------------------------------------------------------------//
     // LIMITACIÓN DE VALOR; SOLO SE ACEPTAN NOMBRES NO NULOS
@@ -134,9 +154,25 @@ public class UsuarioEntity {
         this.ingresos = nIngresos;
     }
     //-----------------------------------------------------------------------------------------//
+    // LIMITACIÓN DE VALOR; SOLO SE ACEPTAN MAYOR O IGUAL A 0
+    public void setValorpropiedad(int nValorpropiedad) {
+        if (nValorpropiedad < 0) {
+            throw new IllegalArgumentException("EL VALOR DE PROPIEDAD TIENE QUE SER MAYOR O IGUAL QUE: 0");
+        }
+        this.valorpropiedad = nValorpropiedad;
+    }
+    //-----------------------------------------------------------------------------------------//
     public void setSolicitud() {
         this.solicitud = new CreditoEntity();
     }
+    public void setNotifications(List<String> notifications) {
+        this.notifications = notifications;
+    }
+    //-----------------------------------------------------------------------------------------//
+    public void addNotification(String notification) {
+        this.notifications.add(notification);
+    }
+    //-----------------------------------------------------------------------------------------//
     // -------------------------------[GETTERS-SELECTIVOS]------------------------------//
     //-----------------------------------------------------------------------------------------//
     // OBTENER VALOR DE RUT
@@ -170,4 +206,9 @@ public class UsuarioEntity {
     public List<CreditoEntity> getCreditos() {return creditos;
     }
     //-----------------------------------------------------------------------------------------//
+    public List<String> getNotifications() {
+        return notifications;
+    }
+    //-----------------------------------------------------------------------------------------//
+
 }
