@@ -24,7 +24,7 @@ pipeline {
         stage('Push image to Docker Hub'){
             steps{
                 dir('entrega1/entrega1'){
-                   withCredentials([string(credentialsId: 'dhpswid', variable: 'dhpsw')]) {
+                   withCredentials([string(credentialsId: 'dkrhubpassword', variable: 'dhpsw')]) {
                         bat 'docker login -u nitroryder -p %dhpsw%'
                    }
                    bat 'docker push nitroryder/entrega1:latest'
