@@ -1,12 +1,11 @@
 pipeline {
     agent any
-    tools{
+    tools {
         nodejs 'nodejs_jenkins_20'
     }
-    stages{
-
-        stage("Checkout"){
-            steps{
+    stages {
+        stage("Checkout") {
+            steps {
                 checkout scm
             }
         }
@@ -19,7 +18,7 @@ pipeline {
             }
         }
 
-        stage('Run npm dependencies') {
+        stage('Run npm build') {
             steps {
                 dir('front-end') {
                     bat 'npm run build'
