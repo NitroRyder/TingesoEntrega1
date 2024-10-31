@@ -11,36 +11,37 @@ pipeline {
             }
         }
 
-        stage('Install npm dependencies'){
-            steps{
-                dir('front-end'){
-                    bat 'npm run install'
+        stage('Install npm dependencies') {
+            steps {
+                dir('front-end') {
+                    bat 'npm install'
                 }
             }
         }
 
-        stage('Run npm dependencies'){
-            steps{
-                dir('front-end'){
+        stage('Run npm dependencies') {
+            steps {
+                dir('front-end') {
                     bat 'npm run build'
                 }
             }
         }
 
-        stage('Build docker image'){
-            steps{
-                dir('front-end'){
+        stage('Build docker image') {
+            steps {
+                dir('front-end') {
                     bat 'docker build -t nitroryder/front-end:latest .'
                 }
             }
         }
+
         stage('Push image to Docker Hub') {
-            steps{
-                dir('front-end'){
-                   withCredentials([string(credentialsId: 'dkrhubpassword', variable: 'dhpsw')]) {
+            steps {
+                dir('front-end') {
+                    withCredentials([string(credentialsId: 'dkrhubpassword', variable: 'dhpsw')]) {
                         bat 'docker login -u nitroryder -p %dhpsw%'
-                   }
-                   bat 'docker push nitroryder/front-end:latest'
+                    }
+                    bat 'docker push nitroryder/front-end:latest'
                 }
             }
         }
