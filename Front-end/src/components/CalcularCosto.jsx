@@ -38,7 +38,6 @@ const CalcularCosto = () => {
       alert('Error al realizar el seguimiento del préstamo: ' + (error.response?.data || error.message));
     }
   };
-
   return (
     <div className="container">
       <h2>Calcular Costos</h2>
