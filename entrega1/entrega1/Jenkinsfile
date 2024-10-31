@@ -1,33 +1,38 @@
 pipeline {
     agent any
+    jdk 'java 17' // Asumiendo que estás usando Java 17, asegúrate de que este nombre coincida con tu configuración de Jenkins
     tools{
         maven 'maven_3_9_1'
     }
     stages{
         stage("Build JAR File"){
             steps{
-                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/NitroRyder/Back-end-1']])
-                bat 'mvn clean package'
+                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/NitroRyder/TingesoEntrega1']])
+                dir('entrega1/entrega1'){ //entrega1/entrega1
+                    bat 'mvn clean package'
+                }
             }
         }
 
         stage('Tests') {
             steps {
-                // Run Maven 'test' phase. It compiles the test sources and runs the unit tests
-                bat 'mvn test' // Use 'bat' for Windows agents or 'sh' for Unix/Linux agents
+                dir('entrega1/entrega1'){
+                    // Run Maven 'test' phase. It compiles the test sources and runs the unit tests
+                    bat 'mvn test' // Use 'bat' for Windows agents or 'sh' for Unix/Linux agents
+                }
             }
         }
 
         stage('Build docker image'){
             steps{
-                script{
+                dir('entrega1/entrega1'){
                     bat 'docker build -t nitroryder/entrega1:latest .'
                 }
             }
         }
         stage('Push image to Docker Hub'){
             steps{
-                script{
+                dir('entrega1/entrega1'){
                    withCredentials([string(credentialsId: 'dhpswid', variable: 'dhpsw')]) {
                         bat 'docker login -u nitroryder -p %dhpsw%'
                    }
