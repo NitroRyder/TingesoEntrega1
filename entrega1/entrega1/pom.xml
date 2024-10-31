@@ -71,6 +71,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<finalName>entrega1</finalName>
 	</build>
 
 </project>

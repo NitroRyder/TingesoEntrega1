@@ -34,7 +34,17 @@ public class UsuarioService {
     }
     //------------------------------------------------------------------//
     // * ACTUALIZAR CLIENTE
-    public UsuarioEntity updateUsuario(UsuarioEntity usuario) {
+    public UsuarioEntity updateUsuario(Long id, int valorpropiedad, int ingresos, int sumadeuda, String objective) {
+        UsuarioEntity usuario = usuarioRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        if(usuario == null) {
+            return null;
+        }
+        // seteo de valores ingresados
+        usuario.setValorpropiedad(valorpropiedad);
+        usuario.setIngresos(ingresos);
+        usuario.setSumadeuda(sumadeuda);
+        usuario.setObjective(objective.toUpperCase());
+
         return usuarioRepository.save(usuario);
     }
     //------------------------------------------------------------------//

@@ -33,11 +33,6 @@ public class UsuarioEntity {
     @Column(name = "workage", nullable = false)
     private int workage = 0;   // VALOR DE AÑOS DE TRABAJO
     //-----------------------------------------------------------------------------------------//
-    @ElementCollection
-    @CollectionTable(name = "usuario_documents", joinColumns = @JoinColumn(name = "usuario_id"))
-    @Column(name = "documents")
-    private List<String> documents;  // List of PDF file paths  -> // VALOR DE DOCUMENTOS ----> ES UNA LISTA DE PDF
-    //-----------------------------------------------------------------------------------------//
     @Column(name = "houses", nullable = false)
     private int houses = 0;   // VALOR DE NÚMERO DE CASAS
     //-----------------------------------------------------------------------------------------//
@@ -123,21 +118,6 @@ public class UsuarioEntity {
         this.age = age;
     }
     //-----------------------------------------------------------------------------------------//
-    // LIMITACIÓN DE VALOR; LA LISTA DE DOCUMENTOS SOLO POSEE TIPO PFD
-    public void setDocuments(List<String> documents) {
-        if (documents != null) {
-            for (String document : documents) {
-                if (document == null) {
-                    throw new IllegalArgumentException("NO SE HA INGRESADO UN ARCHIVO POR FAVOR INGRESAR DOCUMENTO DE TIPO pdf");
-                }
-                if (!document.toLowerCase().endsWith(".pdf")) {
-                    throw new IllegalArgumentException("EL DOCUMENTO NO ES DEL TIPO PDF. POR FAVOR INGRESAR UN DOCUMENTO DE TIPO PDF");
-                }
-            }
-        }
-        this.documents = documents;
-    }
-    //-----------------------------------------------------------------------------------------//
     // LIMITACIÓN DE VALOR; SOLO SE ACEPTAN MAYOR O IGUAL A 0
     public void setHouses(int nHouses) {
         if (nHouses < 0) {
@@ -189,10 +169,6 @@ public class UsuarioEntity {
     //-----------------------------------------------------------------------------------------//
     // OBTENER VALOR DE AÑOS DE TRABAJO
     public int getWorkage() {return workage;}
-    //-----------------------------------------------------------------------------------------//
-    // OBTENER VALOR DE DOCUMENTOS
-    public List<String> getDocuments() {return documents;
-    }
     //-----------------------------------------------------------------------------------------//
     // OBTENER VALOR DE NÚMERO DE CASAS
     public int getHouses() {return houses;

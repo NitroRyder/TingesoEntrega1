@@ -19,7 +19,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/credito")
-@CrossOrigin(origins = "*")
+@CrossOrigin("*")
 //------------------------------[IMPORTS DE SERVICO]-------------------------------------//
 public class CreditoController {
     @Autowired

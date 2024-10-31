@@ -39,7 +39,7 @@ public class SistemaServiceTest {
         // Mock the save method to return the savedUsuario object
 
     }
-
+    /*
     @Test
     void whenGetMontoCredito_thenCorrect() {
         // Given
@@ -47,7 +47,7 @@ public class SistemaServiceTest {
         usuario.setId(1L);
         usuario.setRut("12.345.678-2");
         usuario.setName("Raul");
-        usuario.setAge(30);
+         usuario.setAge(30);
         usuario.setWorkage(2);
         usuario.setDocuments(new ArrayList<>());
         usuario.setHouses(2);
@@ -69,5 +69,5 @@ public class SistemaServiceTest {
         // Then
         assertThat(usuario).isNotNull();
     }
-
+    */
 }

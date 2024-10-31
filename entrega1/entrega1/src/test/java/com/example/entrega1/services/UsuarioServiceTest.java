@@ -40,7 +40,6 @@ public class UsuarioServiceTest {
         usuario1.setName("Raul");
         usuario1.setAge(30);
         usuario1.setWorkage(2);
-        usuario1.setDocuments(null);
         usuario1.setHouses(2);
         usuario1.setValorpropiedad(1000000);
         usuario1.setIngresos(500000);
@@ -57,7 +56,6 @@ public class UsuarioServiceTest {
         usuario2.setName("Juan");
         usuario2.setAge(43);
         usuario2.setWorkage(5);
-        usuario2.setDocuments(null);
         usuario2.setHouses(1);
         usuario2.setValorpropiedad(500000);
         usuario2.setIngresos(300000);

@@ -18,12 +18,13 @@ import org.springframework.web.multipart.MultipartFile;
 //---------------------------------[IMPORTS DE SERVICO]----------------------------------------//
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/usuario")
-@CrossOrigin(origins = "*")
+@CrossOrigin("*")
 
 //------------------------------[IMPORTS DE SERVICO]-------------------------------------//
 public class UsuarioController {
@@ -81,8 +82,18 @@ public class UsuarioController {
     //------------------------------------[PUT]------------------------------------------------//
     // * ACTUALIZACIÓN DE USUARIOS
     @PutMapping("/update")
-    public ResponseEntity<UsuarioEntity> updateUsuario(@RequestBody UsuarioEntity usuario) {
-        return ResponseEntity.ok(usuarioService.updateUsuario(usuario));
+    public ResponseEntity<UsuarioEntity> updateUsuario(
+            @RequestParam Long id,
+            @RequestParam int valorpropiedad,
+            @RequestParam int ingresos,
+            @RequestParam int sumadeuda,
+            @RequestParam String objective) {
+        try {
+            UsuarioEntity updatedUsuario = usuarioService.updateUsuario(id, valorpropiedad, ingresos, sumadeuda, objective);
+            return ResponseEntity.ok(updatedUsuario);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
     }
     //-------------------------------------------------------------------------------------------//
     //------------------------------------[DELETE]---------------------------------------------//
@@ -111,80 +122,38 @@ public class UsuarioController {
     //------------------------------------------------------------------------------------------//
     //----------------[P1]- FUNCIONES DE CALCULO DE CRÉDITO HIPOTECARIO-----------------//
     @GetMapping("/calcularMontoMensual")
-    public ResponseEntity<Double> calcularMontoMensual(@RequestBody Map<String, Object> body) {
-        String rut = (String) body.get("rut");
-        double P = ((Number) body.get("P")).doubleValue();   // MONTO PRESTAMO
-        double r = ((Number) body.get("r")).doubleValue();     // TASA DE INTERES ANUAL
-        double n = ((Number) body.get("n")).doubleValue();    // INGRESE PLAZO EN AÑOS ->
-        double V = ((Number) body.get("V")).doubleValue();    // VALOR DE LA PROPIEDAD
+    public ResponseEntity<Double> calcularMontoMensual(@RequestParam("rut") String rut,
+        @RequestParam("P") double P,
+        @RequestParam("r") double r,
+        @RequestParam("n") double n,
+        @RequestParam("V") double V) {
+        /*
+        P // MONTO PRESTAMO
+        r // TASA DE INTERES ANUAL
+        n // INGRESE PLAZO EN AÑOS 
+        V // VALOR DE LA PROPIEDAD
+        */
         if (rut == null || rut.isEmpty() || !usuarioRepository.existsByRut(rut)) {
             System.out.println("ERROR: EL RUT INGRESADO NO SE ENCUENTRA REGISTRADO EN EL SISTEMA, POR FAVOR INGRESAR UN RUT REGISTRADO O REGISTRARSE EN EL SISTEMA");
-            return ResponseEntity.badRequest().body(null);
-        }
-        if (P <= 0 || r <= 0 || n <= 0 || V <= 0) {
-            System.out.println("ERROR: LOS VALORES INGRESADOS NO PUEDEN SER NEGARIVOS O IGUAL A 0");
-            return ResponseEntity.badRequest().body(null);
+            double Er = -2;
+            return ResponseEntity.ok(Er);
         }
         double Resultado = sistemaService.Credito_Hipotecario(rut, P, r, n, V);
         if (Resultado == 0) {
             System.out.println("ERROR: NO SE PUDO CALCULAR EL MONTO MENSUAL");
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.ok(Resultado = -1);
         }else {
             return ResponseEntity.ok(Resultado);
         }
     }
-    /* EL JSON ES;
-    {
-      "rut": "12345678-9",
-      "P": 50000,
-      "r": 0.5,
-      "n": 30,
-      "V": 100000
-    }
-     */
     //-----------------------[P2]- FUNCIONES DE REGISTRO DE USUARIO-------------------------//
     @PostMapping("/register")
     public ResponseEntity<?> registerUsuario(@RequestBody UsuarioEntity usuario) {
-        if(usuario.getRut() == null || usuario.getRut().isEmpty()) {
-            return ResponseEntity.badRequest().body("POR FAVOR INGRESAR RUT");
-        }
         if(usuarioRepository.existsByRut(usuario.getRut())) {
-            return ResponseEntity.badRequest().body("EL RUT YA EXISTE");
-        }
-        if(usuario.getName() == null || usuario.getName().isEmpty()) {
-            return ResponseEntity.badRequest().body("POR FAVOR INGRESAR NOMBRE");
-        }
-        if (usuario.getAge() == 0) {
-            return ResponseEntity.badRequest().body("POR FAVOR INGRESAR VALOR DE EDAD");
-        }
-        if (usuario.getAge() < 0) {
-            return ResponseEntity.badRequest().body("EL VALOR DE AÑOS DE TRABAJO TIENE QUE SER MAYOR O IGUAL QUE: 0");
-        }
-        if (usuario.getAge() <= 18) {
-            return ResponseEntity.badRequest().body("EL VALOR DE LA EDAD TIENE QUE SER MAYOR QUE 18");
-        }
-        if(usuario.getDocuments() == null || usuario.getDocuments().isEmpty()) {
-            return ResponseEntity.badRequest().body("POR FAVOR INGRESAR DOCUMENTO");
-        }
-        if(usuario.getIndependiente() == null || usuario.getIndependiente().isEmpty()) {
-            return ResponseEntity.badRequest().body("POR FAVOR INGRESAR SI ES 'INDEPENDIENTE' O 'ASALARIADO'");
-        }
-        for (String document : usuario.getDocuments()) {
-            if (!document.toLowerCase().endsWith(".pdf")) {
-                return ResponseEntity.badRequest().body("TODOS LOS DOCUMENTOS DEBEN SER ARCHIVOS PDF");
-            }
-        }
-        if (usuario.getHouses() < 0) {
-            return ResponseEntity.badRequest().body("EL VALOR DE CANTIDAD DE CASAS TIENE QUE SER MAYOR O IGUAL QUE: 0");
-        }
-        if(usuario.getValorpropiedad() < 0) {
-            return ResponseEntity.badRequest().body("EL VALOR DE LA PROPIEDAD TIENE QUE SER MAYOR O IGUAL QUE: 0");
-        }
-        if (usuario.getIngresos() < 0) {
-            return ResponseEntity.badRequest().body("EL VALOR DE INGRESOS TIENE QUE SER MAYOR O IGUAL QUE: 0");
-        }
-        if (usuario.getSumadeuda() < 0){
-            return ResponseEntity.badRequest().body("EL VALOR DE LAS DEUDA TOTALES TIENE QUE SER MAYOR O IGUAL QUE: 0");
+            double Er = -2;
+            //UsuarioEntity Resultado = null;
+            return ResponseEntity.ok(Er);
+            //return ResponseEntity.badRequest().body("EL RUT YA EXISTE");
         }
         try {
             UsuarioEntity registeredUsuario = sistemaService.registerUsuario(
@@ -192,7 +161,6 @@ public class UsuarioController {
                     usuario.getName(),
                     usuario.getAge(),
                     usuario.getWorkage(),
-                    usuario.getDocuments(),
                     usuario.getHouses(),
                     usuario.getValorpropiedad(),
                     usuario.getIngresos(),
@@ -202,6 +170,12 @@ public class UsuarioController {
                     usuario.getAhorros(),
                     usuario.getCreditos()
             );
+            // SI EXISTE UN CREDITO QUE NO SE ENCUENTRE APROBADO, LA SOLICITUD SERÁ RECHAZADA EN EL FRONT-END
+            for (CreditoEntity credito : registeredUsuario.getCreditos()) {
+                if (!credito.getState().equals("APROBADO")) {
+                    return ResponseEntity.ok(-1);
+                }
+            }
             return ResponseEntity.ok(registeredUsuario);
         }
         catch (DataIntegrityViolationException e) {
@@ -213,90 +187,6 @@ public class UsuarioController {
         }
     }
     //----------------[P3]- FUNCIONES DE SOLICITÚD DE CRÉDITO-----------------//
-    /*
-    @PostMapping(value = "/{id}", consumes = {"multipart/form-data"})
-    public ResponseEntity<CreditEntity> applyForCredit(@PathVariable Long id,
-    @RequestParam("proofOfIncome") MultipartFile file,
-    @RequestParam(value = "appraisalCertificate", required = false) MultipartFile file2,
-    @RequestParam(value = "creditHistory", required = false) MultipartFile file3,
-    @RequestParam(value = "deedOfTheFirstHome", required = false) MultipartFile file4,
-    @RequestParam(value = "financialStatusOfTheBusiness", required = false) MultipartFile file5,
-    @RequestParam(value = "businessPlan", required = false) MultipartFile file6,
-    @RequestParam(value = "remodelingBudget", required = false) MultipartFile file7,
-    @RequestParam(value = "updatedAppraisalCertificate", required = false) MultipartFile file8,
-    @RequestParam("monthlyIncome1") String monthlyIncome1,
-    @RequestParam("monthlyIncome2") String monthlyIncome2,
-    @RequestParam("monthlyIncome3") String monthlyIncome3,
-    @RequestParam("monthlyIncome4") String monthlyIncome4,
-    @RequestParam("monthlyIncome5") String monthlyIncome5,
-    @RequestParam("monthlyIncome6") String monthlyIncome6,
-    @RequestParam("monthlyIncome7") String monthlyIncome7,
-    @RequestParam("monthlyIncome8") String monthlyIncome8,
-    @RequestParam("monthlyIncome9") String monthlyIncome9,
-    @RequestParam("monthlyIncome10") String monthlyIncome10,
-    @RequestParam("monthlyIncome11") String monthlyIncome11,
-    @RequestParam("monthlyIncome12") String monthlyIncome12,
-    @RequestParam("requestedAmount") int requestedAmount,
-    @RequestParam("loanTerm") int loanTerm,
-    @RequestParam("annualInterestRate") double annualInterestRate,
-    @RequestParam("typeOfLoan") String typeOfLoan,
-    @RequestParam("creditsHistory") Boolean creditsHistory,
-    @RequestParam("monthlyDebt") String monthlyDebt,
-    @RequestParam("propertyAmount") int propertyAmount) {
-        try {
-            String monthlyIncome = monthlyIncome1 + "," + monthlyIncome2 + "," + monthlyIncome3 + "," + monthlyIncome4 + "," + monthlyIncome5 + "," + monthlyIncome6 + "," + monthlyIncome7 + "," + monthlyIncome8 + "," + monthlyIncome9 + "," + monthlyIncome10 + "," + monthlyIncome11 + "," + monthlyIncome12;
-            CreditEntity credit = new CreditEntity(id, monthlyIncome, requestedAmount, loanTerm, annualInterestRate, typeOfLoan, creditsHistory, monthlyDebt, propertyAmount);
-            byte[] pdfBytes = file.getBytes();
-            credit.setProofOfIncome(pdfBytes);
-            byte[] pdfBytes2 = null;
-            if (file2 != null && !file2.isEmpty()) {
-                pdfBytes2 = file2.getBytes();
-            }
-            credit.setAppraisalCertificate(pdfBytes2);
-            byte[] pdfBytes3 = null;
-            if (file3 != null && !file3.isEmpty()) {
-                pdfBytes3 = file3.getBytes();
-            }
-            credit.setCreditHistory(pdfBytes3);
-            byte[] pdfBytes4 = null;
-            if (file4 != null && !file4.isEmpty()) {
-                pdfBytes4 = file4.getBytes();
-            }
-            credit.setDeedOfTheFirstHome(pdfBytes4);
-            byte[] pdfBytes5 = null;
-            if (file5 != null && !file5.isEmpty()) {
-                pdfBytes5 = file5.getBytes();
-            }
-            credit.setFinancialStatusOfTheBusiness(pdfBytes5);
-            byte[] pdfBytes6 = null;
-            if (file6 != null && !file6.isEmpty()) {
-                pdfBytes6 = file6.getBytes();
-            }
-            credit.setBusinessPlan(pdfBytes6);
-            byte[] pdfBytes7 = null;
-            if (file7 != null && !file7.isEmpty()) {
-                pdfBytes7 = file7.getBytes();
-            }
-            credit.setRemodelingBudget(pdfBytes7);
-            byte[] pdfBytes8 = null;
-            if (file8 != null && !file8.isEmpty()) {
-                pdfBytes8 = file8.getBytes();
-            }
-            credit.setCreditsHistory(creditsHistory);
-            credit.setUpdatedAppraisalCertificate(pdfBytes8);
-            credit.setAppraisalCertificate(pdfBytes2);
-            CreditEntity creditSaved = creditService.applicationStatus(credit);
-            return ResponseEntity.ok(creditSaved);
-        } catch (Exception e) {
-            // If the user is not found, return null.
-            return null;
-
-     */
-
-
-
-
-
     @PostMapping("/solicitarCredito")
     public ResponseEntity<?> createSolicitud(
             @RequestParam("userId") Long userId,
@@ -317,19 +207,8 @@ public class UsuarioController {
             @RequestParam("dicom") MultipartFile dicom) {
         // Validar RUT
         if (userId == null || !usuarioRepository.existsById(userId)) {
-            return ResponseEntity.badRequest().body("ERROR: EL ID DE USUARIO INGRESADO NO SE ENCUENTRA REGISTRADO EN EL SISTEMA, POR FAVOR INGRESAR UN ID REGISTRADO O REGISTRARSE EN EL SISTEMA");
-        }
-
-        // Validar montos
-        if (montop <= 0 || plazo <= 0 || intanu <= 0 || intmen <= 0 || segudesg < 0 || seguince < 0 || comiad < 0) {
-            return ResponseEntity.badRequest().body("ERROR: LOS VALORES INGRESADOS NO PUEDEN SER NEGATIVOS O IGUAL A 0");
-        }
-
-        // Validar archivos obligatorios
-        if (comprobanteIngresos == null || comprobanteIngresos.isEmpty() ||
-                certificadoAvaluo == null || certificadoAvaluo.isEmpty() ||
-                dicom == null || dicom.isEmpty()) {
-            return ResponseEntity.badRequest().body("ERROR: LOS ARCHIVOS COMPROBANTE DE INGRESOS, CERTIFICADO DE AVALÚO Y DICOM SON OBLIGATORIOS");
+            //return ResponseEntity.badRequest().body("ERROR: EL ID DE USUARIO INGRESADO NO SE ENCUENTRA REGISTRADO EN EL SISTEMA, POR FAVOR INGRESAR UN ID REGISTRADO O REGISTRARSE EN EL SISTEMA");
+            return ResponseEntity.ok(-2);
         }
         try {
             // Llamar a la función createSolicitud de SistemaService
@@ -353,11 +232,35 @@ public class UsuarioController {
     public ResponseEntity<?> aprobarCredito(@RequestBody Map<String, Object> body) {
         Long userId = ((Number) body.get("userId")).longValue();
         if (userId == null || !usuarioRepository.existsById(userId)) {
-            return ResponseEntity.badRequest().body("ERROR: EL ID DE USUARIO INGRESADO NO SE ENCUENTRA REGISTRADO EN EL SISTEMA, POR FAVOR INGRESAR UN ID REGISTRADO O REGISTRARSE EN EL SISTEMA");
+            return ResponseEntity.ok(-2);
         }
         try {
-            sistemaService.evaluateCredito(userId);
-            return ResponseEntity.ok("REVISION DE CRÉDITO REALIZADA CORRECTAMENTE");
+            Map<String, Object> resultado = sistemaService.evaluateCredito(userId);
+            if (resultado == null) {
+                return ResponseEntity.ok(-1);
+            }else{
+                CreditoEntity solicitud = (CreditoEntity) resultado.get("solicitud");
+
+                List<Map<String, String>> files = (List<Map<String, String>>) resultado.get("files");
+                Map<String, Object> response = new HashMap<>();
+                response.put("solicitud", solicitud);
+                response.put("files", files);
+                return ResponseEntity.ok(response);
+            }
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    //-----------------------[P5]- FUNCIONES DE SEGUIMENTO ---------------------------------------//
+    @PostMapping("/seguimiento")
+    public ResponseEntity<?> seguimiento(@RequestBody Map<String, Object> body) {
+        Long userId = ((Number) body.get("userId")).longValue();
+        if (userId == null || !usuarioRepository.existsById(userId)) {
+            return ResponseEntity.ok(-2);
+        }
+        try {
+            return ResponseEntity.ok(sistemaService.followCredito(userId));
         }
         catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -368,11 +271,40 @@ public class UsuarioController {
     public ResponseEntity<?> calcularCostosTotales(@RequestBody Map<String, Object> body) {
         Long userId = ((Number) body.get("userId")).longValue();
         if (userId == null || !usuarioRepository.existsById(userId)) {
-            return ResponseEntity.badRequest().body("ERROR: EL ID DE USUARIO INGRESADO NO SE ENCUENTRA REGISTRADO EN EL SISTEMA, POR FAVOR INGRESAR UN ID REGISTRADO O REGISTRARSE EN EL SISTEMA");
+            return ResponseEntity.ok(-2);
         }
         try {
-            sistemaService.calcularCostosTotales(userId);
-            return ResponseEntity.ok("COSTOS TOTALES CALCULADOS CORRECTAMENTE");
+            return ResponseEntity.ok(sistemaService.calcularCostosTotales(userId));
+        }
+        catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    //-----------------------[EXTRA]- FUNCIONES DE NOTIFICACIONES-------------------------------//
+    @PostMapping("/notificaciones")
+    public ResponseEntity<?> getNotificaciones(@RequestBody Map<String, Object> body) {
+        Long userId = ((Number) body.get("userId")).longValue();
+        if (userId == null || !usuarioRepository.existsById(userId)) {
+            return ResponseEntity.ok(-2);
+        }
+        try {
+            return ResponseEntity.ok(sistemaService.getNotifications(userId));
+        }
+        catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    //-----------------------[EXTRA]- FUNCIONES DE ACTUALIZACIÓN DE ESTADOS-----------------//
+    @PostMapping("/updateState")
+    //updateState ingresa id y un int state
+    public ResponseEntity<?> updateState(@RequestBody Map<String, Object> body) {
+        Long userId = ((Number) body.get("userId")).longValue();
+        int state = ((Number) body.get("state")).intValue();
+        if (userId == null || !usuarioRepository.existsById(userId)) {
+            return ResponseEntity.ok(-2);
+        }
+        try {
+            return ResponseEntity.ok(sistemaService.updateState(userId, state));
         }
         catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
