@@ -1,7 +1,7 @@
 pipeline {
     agent any
     tools{
-        nodejs 'nodejs_20_12_2'
+        nodejs 'nodejs_jenkins_20'
     }
     stages{
         stage("Build JAR File"){
