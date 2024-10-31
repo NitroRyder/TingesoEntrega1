@@ -21,6 +21,7 @@ pipeline {
                 }
             }
         }
+        
         stage('Push image to Docker Hub'){
             steps{
                 dir('entrega1/entrega1'){

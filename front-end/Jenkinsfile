@@ -4,12 +4,10 @@ pipeline {
         nodejs 'nodejs_jenkins_20'
     }
     stages{
-        stage("Build JAR File"){
+
+        stage("Checkout"){
             steps{
-                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/NitroRyder/Front-end-1']])
-                dir('front-end'){
-                    bat 'mvn clean package'
-                }
+                checkout scm
             }
         }
 
