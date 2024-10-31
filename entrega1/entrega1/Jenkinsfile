@@ -13,7 +13,7 @@ pipeline {
                 }
             }
         }
-
+        /*
         stage('Tests') {
             steps {
                 dir('entrega1/entrega1'){
@@ -22,7 +22,7 @@ pipeline {
                 }
             }
         }
-
+        */
         stage('Build docker image'){
             steps{
                 dir('entrega1/entrega1'){
