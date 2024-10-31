@@ -1,7 +1,7 @@
 pipeline {
     agent any
-    jdk 'java 17' // Asumiendo que estás usando Java 17, asegúrate de que este nombre coincida con tu configuración de Jenkins
     tools{
+        jdk 'java 17' // Asumiendo que estás usando Java 17, asegúrate de que este nombre coincida con tu configuración de Jenkins
         maven 'maven'
     }
     stages{
