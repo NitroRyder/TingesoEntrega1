@@ -14,6 +14,14 @@ pipeline {
             }
         }
 
+        stage('Test'){
+            steps{
+                dir('entrega1/entrega1'){
+                    bat 'mvn test'
+                }
+            }
+        }
+
         stage('Build docker image'){
             steps{
                 dir('entrega1/entrega1'){
