@@ -134,7 +134,8 @@ public class SistemaService {
             }
         }
         //-------------------------------------------------------------------------//
-        return usuarioRepository.findById(savedUsuario.getId()).orElse(null);
+        return savedUsuario;
+        //return usuarioRepository.findById(savedUsuario.getId()).orElse(null);
     }
     //-----------------------[P3]- FUNCIONES DE CREACIÓN  DE SOLICITUD DE CRÉDITO-------------------------//
     public CreditoEntity createSolicitud(Long userId, double montop, int plazo, double intanu, double intmen, double segudesg, double seguince, double comiad, byte[] comprobanteIngresos, byte[] certificadoAvaluo, byte[] historialCrediticio, byte[] escrituraPrimeraVivienda, byte[] planNegocios, byte[] estadosFinancieros, byte[] presupuestoRemodelacion, byte[] dicom) {
