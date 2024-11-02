@@ -45,7 +45,7 @@ public class SistemaServiceTest {
         double result = sistemaService.Credito_Hipotecario("12.345.678-2", 100000, 0.04, 20, 150000);
         assertThat(result).isGreaterThan(0);
     }
-    /*
+
     @Test
     public void testRegisterUsuario() {
         // Arrange
@@ -103,6 +103,58 @@ public class SistemaServiceTest {
         assertEquals(creditos, savedUsuario.getCreditos());
     }
 
+    @Test
+    public void testRegisterUsuario2() {
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 10; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(50000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+
+        List<CreditoEntity> creditos = new ArrayList<>();
+
+        UsuarioEntity usuario = new UsuarioEntity();
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(1);
+        usuario.setValorpropiedad(100000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        // Act
+        UsuarioEntity savedUsuario = sistemaService.registerUsuario(
+                "12345678-9", "John Doe", 30, 5, 1, 100000, 5000, 2000,
+                "PRIMERA VIVIENDA", "ASALARIADO", ahorros, creditos
+        );
+
+        // Assert
+        assertNotNull(savedUsuario);
+        assertEquals("12345678-9", savedUsuario.getRut());
+        assertEquals("John Doe", savedUsuario.getName());
+        assertEquals(30, savedUsuario.getAge());
+        assertEquals(5, savedUsuario.getWorkage());
+        assertEquals(1, savedUsuario.getHouses());
+        assertEquals(100000, savedUsuario.getValorpropiedad());
+        assertEquals(5000, savedUsuario.getIngresos());
+        assertEquals(2000, savedUsuario.getSumadeuda());
+        assertEquals("PRIMERA VIVIENDA", savedUsuario.getObjective());
+        assertEquals("ASALARIADO", savedUsuario.getIndependiente());
+        assertEquals(ahorros, savedUsuario.getAhorros());
+        assertEquals(creditos, savedUsuario.getCreditos());
+    }
+
+    /*
     @Test
     void testCreateSolicitud() {
         UsuarioEntity usuario = new UsuarioEntity();
