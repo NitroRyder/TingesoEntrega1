@@ -369,7 +369,7 @@ public class SistemaService {
         } else if (plazo <= 15 && 0.045 <= intanu && intanu <= 0.06 && montop <= usuario.getValorpropiedad() * 0.5 &&
                 solicitud.getComprobanteIngresos() != null && solicitud.getComprobanteIngresos().length > 0 &&
                 solicitud.getPresupuestoRemodelacion() != null && solicitud.getPresupuestoRemodelacion().length > 0 &&
-                solicitud.getCertificadoAvaluo() != null && solicitud.getCertificadoAvaluo().length > 0 && usuario.getObjective().equalsIgnoreCase("REMODELACIÓN")) {
+                solicitud.getCertificadoAvaluo() != null && solicitud.getCertificadoAvaluo().length > 0 && usuario.getObjective().equalsIgnoreCase("REMODELACION")) {
             //System.out.println("CRÉDITO APROBADO: REMODELACIÓN");
         } else {
             // MODIFICAR EL ESTADO DE LA SOLICITUD A "RECHAZADA"
