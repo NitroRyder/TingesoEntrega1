@@ -174,7 +174,8 @@ public class SistemaService {
         // Guardar la nueva solicitud
         CreditoEntity savedSolicitud = creditoRepository.save(solicitud);
 
-        return creditoRepository.findById(savedSolicitud.getId()).orElse(null);
+        return savedSolicitud;
+        //return creditoRepository.findById(savedSolicitud.getId()).orElse(null);
     }
     //-----------------------[P4]- EVALUACIÓN DE CRÉDITO-------------------------//
     // VER QUE EL RUT ESTÉ GUARDADO EN LA BASE DE DATOS Y QUE TENGA UNA "solicitud" EN ESTADO "PENDIENTE"
