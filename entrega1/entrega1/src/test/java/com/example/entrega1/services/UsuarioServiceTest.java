@@ -31,7 +31,7 @@ public class UsuarioServiceTest {
     void setUp(){
         MockitoAnnotations.openMocks(this);
     }
-
+    //---------------------------------------------------------------------------//
     @Test
     void testGetUsuarios(){
         UsuarioEntity usuario1 = new UsuarioEntity();
@@ -76,5 +76,97 @@ public class UsuarioServiceTest {
         assertThat(result.get(0).getId()).isEqualTo(1L);
         assertThat(result.get(0).getRut()).isEqualTo("12345678-2");
     }
+    //---------------------------------------------------------------------------//
+    @Test
+    void testSaveUsuario(){
+        UsuarioEntity usuario = new UsuarioEntity();
+        usuario.setId(1L);
+        usuario.setRut("12.345.678-2");
+        usuario.setName("Raul");
+        usuario.setAge(30);
+        usuario.setWorkage(2);
+        usuario.setHouses(2);
+        usuario.setValorpropiedad(1000000);
+        usuario.setIngresos(500000);
+        usuario.setSumadeuda(240000);
+        usuario.setObjective("Compra de vivienda");
+        usuario.setIndependiente("independiente");
+        usuario.setAhorros(null);
+        usuario.setCreditos(null);
+        usuario.setNotifications(null);
+
+        when(usuarioRepository.save(usuario)).thenReturn(usuario);
+
+        UsuarioEntity result = usuarioService.saveUsuario(usuario);
+
+        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getRut()).isEqualTo("12345678-2");
+    }
+    //---------------------------------------------------------------------------//
+    @Test
+    void testUpdateUsuario(){
+        UsuarioEntity usuario = new UsuarioEntity();
+        usuario.setId(1L);
+        usuario.setRut("12.345.678-2");
+        usuario.setName("Raul");
+        usuario.setAge(30);
+        usuario.setWorkage(2);
+        usuario.setHouses(2);
+        usuario.setValorpropiedad(1000000);
+        usuario.setIngresos(500000);
+        usuario.setSumadeuda(240000);
+        usuario.setObjective("Compra de vivienda");
+        usuario.setIndependiente("independiente");
+        usuario.setAhorros(null);
+        usuario.setCreditos(null);
+        usuario.setNotifications(null);
+
+        when(usuarioRepository.findById(1L)).thenReturn(java.util.Optional.of(usuario));
+        when(usuarioRepository.save(usuario)).thenReturn(usuario);
+
+        UsuarioEntity result = usuarioService.updateUsuario(1L, 1000000, 500000, 240000, "Compra de vivienda");
+
+        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getValorpropiedad()).isEqualTo(1000000);
+    }
+    //---------------------------------------------------------------------------//
+    @Test
+    void testDeleteUsuario(){
+        UsuarioEntity usuario = new UsuarioEntity();
+        usuario.setId(1L);
+        usuario.setRut("12.345.678-2");
+        usuario.setName("Raul");
+        usuario.setAge(30);
+        usuario.setWorkage(2);
+        usuario.setHouses(2);
+        usuario.setValorpropiedad(1000000);
+        usuario.setIngresos(500000);
+        usuario.setSumadeuda(240000);
+        usuario.setObjective("Compra de vivienda");
+        usuario.setIndependiente("independiente");
+        usuario.setAhorros(null);
+        usuario.setCreditos(null);
+        usuario.setNotifications(null);
+
+        when(usuarioRepository.findById(1L)).thenReturn(java.util.Optional.of(usuario));
+
+        try {
+            usuarioService.deleteUsuario(1L);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    //---------------------------------------------------------------------------//
+    @Test
+    void testDeleteAllUsuarios(){
+        usuarioService.deleteAllUsuarios();
+    }
+    //---------------------------------------------------------------------------//
+    @Test
+    void testGetAllUsuarios(){
+        Object result = usuarioService.getAllUsuarios();
+        assertThat(result).isEqualTo(null);
+    }
+    //---------------------------------------------------------------------------//
 
 }
