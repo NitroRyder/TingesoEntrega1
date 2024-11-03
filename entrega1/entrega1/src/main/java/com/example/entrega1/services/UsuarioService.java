@@ -83,11 +83,6 @@ public class UsuarioService {
     public List<UsuarioEntity>  getUsuarioByObjective(String objective) {
         return usuarioRepository.findByObjective(objective);
     }
-    //------------------------------------------------------------------//
-    // + OBTENER TODOS LOS RUT´S
-    public List<String> findAllRuts() {
-        return usuarioRepository.findAllRuts();
-    }
     //------------------------------[OPERACIONES AHORRO]------------------------------------//
     public int obtenerValorPositivoMasPequeno(List<AhorrosEntity> ahorros) {
         int valorPositivoMasPequeno = Integer.MAX_VALUE;

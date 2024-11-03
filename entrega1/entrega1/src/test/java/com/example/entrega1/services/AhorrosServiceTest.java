@@ -34,6 +34,8 @@ public class AhorrosServiceTest {
     private CreditoRepository creditoRepository;
     @Mock
     private AhorrosRepository ahorrosRepository;
+    @Mock
+    private AhorrosService ahorrosService;
     @InjectMocks
     private UsuarioService usuarioService;
 
@@ -58,23 +60,16 @@ public class AhorrosServiceTest {
         when(ahorrosRepository.findAll()).thenReturn(Arrays.asList(ahorros1, ahorros2));
     }
     //---------------------------------------------------------------------------//
-    /*
     @Test
-    void testSaveAhorros() {
+    void testGetAhorrosById() {
         AhorrosEntity ahorros = new AhorrosEntity();
         ahorros.setId(1L);
         ahorros.setTransaccion(1000000);
         ahorros.setUsuario(null);
 
-        when(ahorrosRepository.save(ahorros)).thenReturn(ahorros);
-
-        AhorrosEntity ahorrosGuardado = usuarioService.saveAhorros(ahorros);
-
-        assertEquals(1L, ahorrosGuardado.getId());
-        assertEquals(1000000, ahorrosGuardado.getTransaccion());
-        assertEquals(null, ahorrosGuardado.getUsuario());
+        when(ahorrosRepository.findById(1L)).thenReturn(Optional.of(ahorros));
     }
-    */
+
     //---------------------------------------------------------------------------//
     @Test
     void testUpdateAhorros() {
@@ -86,4 +81,5 @@ public class AhorrosServiceTest {
         when(ahorrosRepository.findById(1L)).thenReturn(Optional.of(ahorros));
         when(ahorrosRepository.save(ahorros)).thenReturn(ahorros);
     }
+    //---------------------------------------------------------------------------//
 }

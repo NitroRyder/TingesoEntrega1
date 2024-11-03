@@ -25,50 +25,6 @@ public class AhorrosService {
         return (ArrayList<AhorrosEntity>) ahorrosRepository.findAll();
     }
     //------------------------------------------------------------------//
-    // * GUARDAR AHORRO -> RECIVE UN AHORRO Y LO GUARDA
-    public AhorrosEntity saveAhorro(AhorrosEntity ahorro) {
-        return ahorrosRepository.save(ahorro);
-    }
-    //------------------------------------------------------------------//
-    // * ACTUALIZAR AHORRO
-    public AhorrosEntity updateAhorro(AhorrosEntity ahorro) {
-        return ahorrosRepository.save(ahorro);
-    }
-    //------------------------------------------------------------------//
-    // * ELIMINAR AHORRO -> SI HAY ALGÚN FALLO, ENTREGA EXCEPCIÓN
-    public void deleteAhorro(Long id) throws Exception {
-        try {
-            ahorrosRepository.deleteById(id);
-        }
-        catch (Exception e) {
-            throw new Exception("NO SE PUDO ELIMINAR EL AHORRO CON id: " + id);
-        }
-    }
-    //------------------------------------------------------------------//
-    // * ELIMINAR TODOS LOS AHORROS
-    public void deleteAllAhorros() {
-        ahorrosRepository.deleteAll();
-    }
-    //------------------------------[OPERACIONES AHORRO]------------------------------------//
-    //--------------------------------------[GETTERS]--------------------------------------------//
-    // + OBTENER AHORRO POR ID -> REGRESA EXCEPCIÓN SI NO EXISTE
-    public AhorrosEntity getAhorroById(Long id) {
-        return ahorrosRepository.findById(id).get();
-    }
-    //--------------------------------------[AGREGAR]--------------------------------------------//
-    // AGREGAR AHORRO A USUARIO POR SU RUT
-    public AhorrosEntity addAhorroToUsuario(AhorrosEntity ahorro, String rut) {
-        if (rut == null) {
-            throw new IllegalArgumentException("RUT NO PUEDE SER NULO");
-        } else if (usuarioRepository.findByRut(rut).isEmpty()) {
-            throw new IllegalArgumentException("NO EXISTE USUARIO CON RUT: " + rut);
-
-        }
-        UsuarioEntity usuario = usuarioRepository.findByRut(rut).get(0);
-        ahorro.setUsuario(usuario);
-        return ahorrosRepository.save(ahorro);
-    }
-    //------------------------------------------------------------------//
     public AhorrosEntity getAhorrosById(Long id) {
         return ahorrosRepository.findById(id).get();
     }
