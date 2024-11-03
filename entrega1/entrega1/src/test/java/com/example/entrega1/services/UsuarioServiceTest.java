@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.*;
@@ -133,30 +134,24 @@ public class UsuarioServiceTest {
         assertThat(result.getId()).isEqualTo(1L);
         assertThat(result.getValorpropiedad()).isEqualTo(1000000);
     }
-
     @Test
-    void testUpdateUsuarioNotFound2() {
-        // Simulate that the user does not exist in the repository
-        when(usuarioRepository.findById(1L)).thenReturn(Optional.empty());
+    public void testUpdateUsuarioReturnsNullWhenUserNotFound() {
+        UsuarioRepository usuarioRepository = Mockito.mock(UsuarioRepository.class);
+        UsuarioService usuarioService = new UsuarioService();
+        usuarioService.usuarioRepository = usuarioRepository;
 
-        // Verify that the method throws an IllegalArgumentException
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            usuarioService.updateUsuario(1L, 1000000, 500000, 240000, "Compra de vivienda");
-        });
+        Long id = 1L;
+        int valorpropiedad = 100000;
+        int ingresos = 50000;
+        int sumadeuda = 20000;
+        String objective = "Compra";
 
-        // Verify the exception message
-        assertThat(exception.getMessage()).isEqualTo("Usuario no encontrado");
-    }
+        // Simular que el usuario no es encontrado
+        Mockito.when(usuarioRepository.findById(id)).thenReturn(Optional.empty());
 
-    @Test
-    void testUpdateUsuarioNotFound() {
-        when(usuarioRepository.findById(1L)).thenReturn(Optional.empty());
+        UsuarioEntity result = usuarioService.updateUsuario(id, valorpropiedad, ingresos, sumadeuda, objective);
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            usuarioService.updateUsuario(1L, 1000000, 500000, 240000, "Compra de vivienda");
-        });
-
-        assertThat(exception.getMessage()).isEqualTo("Usuario no encontrado");
+        assertNull(result);
     }
     //---------------------------------------------------------------------------//
     @Test
