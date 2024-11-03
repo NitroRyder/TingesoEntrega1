@@ -15,6 +15,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.*;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.doThrow;
@@ -131,6 +132,31 @@ public class UsuarioServiceTest {
 
         assertThat(result.getId()).isEqualTo(1L);
         assertThat(result.getValorpropiedad()).isEqualTo(1000000);
+    }
+
+    @Test
+    void testUpdateUsuarioNotFound2() {
+        // Simulate that the user does not exist in the repository
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Verify that the method throws an IllegalArgumentException
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            usuarioService.updateUsuario(1L, 1000000, 500000, 240000, "Compra de vivienda");
+        });
+
+        // Verify the exception message
+        assertThat(exception.getMessage()).isEqualTo("Usuario no encontrado");
+    }
+
+    @Test
+    void testUpdateUsuarioNotFound() {
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            usuarioService.updateUsuario(1L, 1000000, 500000, 240000, "Compra de vivienda");
+        });
+
+        assertThat(exception.getMessage()).isEqualTo("Usuario no encontrado");
     }
     //---------------------------------------------------------------------------//
     @Test
@@ -370,6 +396,25 @@ public class UsuarioServiceTest {
     }
 
     @Test
+    void testObtenerValorPositivoMasPequenoSinValoresPositivos() {
+        // Set up test data
+        AhorrosEntity ahorro1 = new AhorrosEntity();
+        ahorro1.setTransaccion(-100);
+        AhorrosEntity ahorro2 = new AhorrosEntity();
+        ahorro2.setTransaccion(0);
+
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        ahorros.add(ahorro1);
+        ahorros.add(ahorro2);
+
+        // Call the service method
+        int result = usuarioService.obtenerValorPositivoMasPequeno(ahorros);
+
+        // Verify the results
+        Assertions.assertThat(result).isEqualTo(-1);
+    }
+    //---------------------------------------------------------------------------//
+    @Test
     void testGetUsuarioByIdNotFound() {
         when(usuarioRepository.findById(1L)).thenReturn(Optional.empty());
 
@@ -390,4 +435,5 @@ public class UsuarioServiceTest {
 
         assertThat(exception.getMessage()).isEqualTo("No value present");
     }
+    //---------------------------------------------------------------------------//
 }

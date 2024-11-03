@@ -42,7 +42,7 @@ public class SistemaService {
         // V = VALOR ACTUAL DE LA PROPIEDAD
         //-------------------------------------------------------------------------//
         if(n <= 30 && 0.035<= r && r <=0.05 && P <= V*0.8){ // Primera Vivienda
-            //System.out.println("PRÉSTAMO REALIZADO: Primera Vivienda");
+            System.out.println("PRÉSTAMO REALIZADO: Primera Vivienda");
             //System.out.println("LOS DOCUMENTOS A INGRESAR PARA ESTE TIPO DE PRÉSTAMO SON:");
             //System.out.println("1.- Comprobante de ingresos");
             //System.out.println("2.- Certificado de avalúo");
@@ -53,7 +53,7 @@ public class SistemaService {
             return M;
         //-------------------------------------------------------------------------//
         } else if(n <= 20 && 0.04<= r && r <=0.06 && P <= V*0.7){ //Segunda Vivienda
-            //System.out.println("PRESTAMO REALIZADO: Segunda Vivienda");
+            System.out.println("PRESTAMO REALIZADO: Segunda Vivienda");
             //System.out.println("LOS DOCUMENTOS A INGRESAR PARA ESTE TIPO DE PRÉSTAMO SON:");
             //System.out.println("1.- Comprobante de ingresos");
             //System.out.println("2.- Certificado de avalúo");
@@ -65,7 +65,7 @@ public class SistemaService {
             return M;
         //-------------------------------------------------------------------------//
         } else if(n <= 25 && 0.05<= r && r <=0.07 && P <= V*0.6){ //Propiedades Comerciales
-            //System.out.println("PRESTAMO REALIZADO: Propiedades Comerciales");
+            System.out.println("PRESTAMO REALIZADO: Propiedades Comerciales");
             //System.out.println("LOS DOCUMENTOS A INGRESAR PARA ESTE TIPO DE PRÉSTAMO SON:");
             //System.out.println("1.-Estado financiero del negocio");
             //System.out.println("2.- Comprobante de ingresos");
@@ -77,7 +77,7 @@ public class SistemaService {
             return M;
         //-------------------------------------------------------------------------//
         } else if(n <=15 && 0.045<= r && r <=0.06 && P<= V*0.5){ //Remodelación
-            //System.out.println("PRESTAMO REALIZADO: Remodelación");
+            System.out.println("PRESTAMO REALIZADO: Remodelación");
             //System.out.println("LOS DOCUMENTOS A INGRESAR PARA ESTE TIPO DE PRÉSTAMO SON:");
             //System.out.println("1.- Comprobante de ingresos");
             //System.out.println("2.- Presupuesto de la remodelación\n");
@@ -209,12 +209,7 @@ public class SistemaService {
         files.add(Map.of("name", "Dicom", "data", ayuda.getDicom() != null ? Base64.getEncoder().encodeToString(ayuda.getDicom()) : ""));
         response.put("files", files);
         //-------------------------------------------------------------------------//
-        if (solicitud == null) {
-            System.out.println("SOLICITUD NO ENCONTRADA");
-            usuario.addNotification("ERROR: EL USUARIO NO TIENE UNA SOLICITUD DE CRÉDITO CREADA");
-            usuarioRepository.save(usuario);
-            return null;
-        } else if ( !"PENDIENTE".equalsIgnoreCase(solicitud.getState())) {
+        if ( !"PENDIENTE".equalsIgnoreCase(solicitud.getState())) {
             System.out.println("SOLICITUD NO ESTÁ EN ESTADO PENDIENTE");
             usuario.addNotification("ERROR: LA SOLICITUD DE CRÉDITO NO ESTÁ EN ESTADO PENDIENTE");
             usuarioRepository.save(usuario);
@@ -328,7 +323,7 @@ public class SistemaService {
         }
         // [R4]--------------------------------------------------------------------//
         // RECHAZO DE LA SOLICITUD SI LA SUMA DE LAS DEUDAS ES MAYOR AL 50% DE LOS INGRESOS
-        if (usuario.getSumadeuda() > usuario.getIngresos() * 0.5) {
+        if (Double.valueOf(usuario.getSumadeuda()) > usuario.getIngresos() * 0.5) {
             // MODIFICAR EL ESTADO DE LA SOLICITUD A "RECHAZADA"
             solicitud.setState("RECHAZADA");
             //-------------------------------------------------------------------------//-------------------------------------------------------------------------//
@@ -563,7 +558,7 @@ public class SistemaService {
         } else if (errores >= 3 && errores < 5) {
             //System.out.println("SOLICITUD DE CRÉDITO EN REVISIÓN ADICIONAL");
             // MODIFICAR EL ESTADO DE LA SOLICITUD A "RECHAZADA"
-            solicitud.setState("REVISIÓN ADICIONAL");
+            solicitud.setState("REVISION ADICIONAL");
             //-------------------------------------------------------------------------//-------------------------------------------------------------------------//
             // ACTUALIZACIÓN DE solicitud EN EL ESPACIO DE solicitud DEL USUARIO
             usuario.setSolicitud(solicitud);

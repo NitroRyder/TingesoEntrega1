@@ -20,10 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -53,6 +50,58 @@ public class SistemaServiceTest {
         double result = sistemaService.Credito_Hipotecario("12.345.678-2", 100000, 0.04, 20, 150000);
         assertThat(result).isGreaterThan(0);
     }
+    @Test
+    public void testCreditoHipotecarioPrimeraVivienda() {
+        SistemaService sistemaService = new SistemaService();
+        double result = sistemaService.Credito_Hipotecario("12345678-9", 160000, 0.04, 30, 200000);
+        assertEquals(447.1238517090664, result, 0.01);
+    }
+
+    @Test
+    public void testCreditoHipotecarioSegundaVivienda() {
+        SistemaService sistemaService = new SistemaService();
+        double result = sistemaService.Credito_Hipotecario("12345678-9", 100000, 0.06, 20, 150000);
+        assertEquals(419.18208310865845, result, 0.01);
+    }
+
+    @Test
+    public void testCreditoHipotecarioPropiedadesComerciales() {
+        SistemaService sistemaService = new SistemaService();
+        double result = sistemaService.Credito_Hipotecario("12345678-9", 120000, 0.06, 25, 200000);
+        assertEquals(403.01749970020626, result, 0.01);
+    }
+
+    @Test
+    public void testCreditoHipotecarioRemodelacion() {
+        SistemaService sistemaService = new SistemaService();
+        double result = sistemaService.Credito_Hipotecario("12345678-9", 100000, 0.045, 15, 200000);
+        assertEquals(557.4430814922548, result, 0.01);
+    }
+
+    @Test
+    public void testCreditoHipotecarioRemodelacion2() {
+        SistemaService sistemaService = new SistemaService();
+
+        String rut = "12345678-9";
+        double P = 50000; // Monto del préstamo
+        double r = 0.05; // Tasa de interés anual
+        double n = 10; // Plazo del préstamo en años
+        double V = 100000; // Valor actual de la propiedad
+
+        double expectedMonthlyPayment = P * (r / 12 / 100 * Math.pow(1 + r / 12 / 100, n * 12)) / (Math.pow(1 + r / 12 / 100, n * 12) - 1);
+
+        double result = sistemaService.Credito_Hipotecario(rut, P, r, n, V);
+
+        assertEquals(expectedMonthlyPayment, result, 0.01);
+    }
+
+    @Test
+    public void testCreditoHipotecarioInvalid() {
+        SistemaService sistemaService = new SistemaService();
+        double result = sistemaService.Credito_Hipotecario("12345678-9", 300000, 0.07, 40, 200000);
+        assertEquals(0, result, 0.01);
+    }
+
     //---------------------------------------------------------------------------//
     //---------------------------------------------------------------------------//
     @Test
@@ -213,6 +262,68 @@ public class SistemaServiceTest {
         assertEquals(ahorros, savedUsuario.getAhorros());
         assertEquals(creditos, savedUsuario.getCreditos());
     }
+
+    @Test
+    public void testRegisterUsuario4() {
+        // Arrange
+        String rut = "12345678-9";
+        String name = "John Doe";
+        int age = 30;
+        int workage = 5;
+        int houses = 0;
+        int valorpropiedad = 200000;
+        int ingresos = 5000;
+        int sumadeuda = 2000;
+        String objective = "PRIMERA VIVIENDA";
+        String independiente = "ASALARIADO";
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        List<CreditoEntity> creditos = new ArrayList<>();
+
+        AhorrosEntity ahorro = new AhorrosEntity();
+        ahorro.setTransaccion(20000);
+        ahorro.setTipo("DEPOSITO");
+        ahorros.add(ahorro);
+
+        CreditoEntity credito = new CreditoEntity();
+        credito.setMontop(100000);
+        credito.setState("APROBADO");
+        creditos.add(credito);
+
+        UsuarioEntity expectedUsuario = new UsuarioEntity();
+        expectedUsuario.setRut(rut);
+        expectedUsuario.setName(name);
+        expectedUsuario.setAge(age);
+        expectedUsuario.setWorkage(workage);
+        expectedUsuario.setHouses(houses);
+        expectedUsuario.setValorpropiedad(valorpropiedad);
+        expectedUsuario.setIngresos(ingresos);
+        expectedUsuario.setSumadeuda(sumadeuda);
+        expectedUsuario.setObjective(objective);
+        expectedUsuario.setIndependiente(independiente);
+        expectedUsuario.setAhorros(ahorros);
+        expectedUsuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(expectedUsuario);
+
+        // Act
+        UsuarioEntity result = sistemaService.registerUsuario(rut, name, age, workage, houses, valorpropiedad, ingresos, sumadeuda, objective, independiente, ahorros, creditos);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(rut, result.getRut());
+        assertEquals(name, result.getName());
+        assertEquals(age, result.getAge());
+        assertEquals(workage, result.getWorkage());
+        assertEquals(houses, result.getHouses());
+        assertEquals(valorpropiedad, result.getValorpropiedad());
+        assertEquals(ingresos, result.getIngresos());
+        assertEquals(sumadeuda, result.getSumadeuda());
+        assertEquals(objective, result.getObjective());
+        assertEquals(independiente, result.getIndependiente());
+        assertEquals(ahorros, result.getAhorros());
+        assertEquals(creditos, result.getCreditos());
+        verify(usuarioRepository, times(1)).save(any(UsuarioEntity.class));
+    }
     //---------------------------------------------------------------------------//
     //---------------------------------------------------------------------------//
     @Test
@@ -362,8 +473,1194 @@ public class SistemaServiceTest {
         assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getEstadosFinancieros());
         assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getPresupuestoRemodelacion());
         assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getDicom());
-    }
+    } //ERROR-1
 
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda1() {
+        // Create a user without a solicitud
+        UsuarioEntity usuario = new UsuarioEntity();
+        usuario.setId(1L);
+        usuario.setSolicitud(null); // Ensure no solicitud is set
+
+        // Mock the repository to return the user
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
+
+        // Call the method under test
+        Map<String, Object> result = sistemaService.evaluateCredito(1L);
+
+        // Assert that the result is null
+        assertNull(result);
+    }// SIN SOLICITUD
+
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda11() {
+        // Configurar el entorno de prueba
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        usuario.setId(userId);
+        usuario.setIngresos(5000);
+        usuario.setWorkage(3);
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setSumadeuda(2000);
+        usuario.setValorpropiedad(100000);
+        usuario.setHouses(0);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setAge(30);
+
+        CreditoEntity solicitud = new CreditoEntity();
+        solicitud.setMontop(80000.0);
+        solicitud.setPlazo(20);
+        solicitud.setIntanu(0.04);
+        solicitud.setIntmen(0.0033);
+        solicitud.setSegudesg(0.001);
+        solicitud.setSeguince(0.002);
+        solicitud.setComiad(0.001);
+        solicitud.setState("APROBADO");
+
+        usuario.setSolicitud(solicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+
+        // Llamar al método evaluateCredito
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        // Verificar que el resultado sea null
+        assertNull(result);
+    } // SOLICITUD NO PENDIENTE
+
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda111() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(150000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(2.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNull(result);
+    } // TASA DE INTERÉS MENSUAL ES INCORRECTA
+
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda1111() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(1500000000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNull(result);
+    } // RELACIÓN CUOTA/INGRESO RECHAZADA:
+
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda11111() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(150000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 1, 2,});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNull(result);
+    } //DICOM MALO
+
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda111111() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(150000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(null);
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNull(result);
+    } //DICOM NO INGRESADO
+
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda1111111() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(0);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(150000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNull(result);
+    } // ASALARIADO CON MENOS DE 1 AÑO
+
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda11111111() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("OTRO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(150000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNull(result);
+    } // NI INDEPENDIENTE NI ASALARIADO
+
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda111111111() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(1);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("INDEPENDIENTE");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(150000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNotNull(result);
+        assertEquals("INDEPENDIENTE", usuario.getIndependiente());
+    } // INDEPENDIENTE CON MENOS DE 1 AÑO
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda12() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(300000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(150000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNull(result);
+    } //LA SUMA DE DEUDAS NO PUEDE SER MAYOR AL 50% DE LOS INGRESOS
+
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda13() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(150000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(null);
+        newSolicitud.setCertificadoAvaluo(null);
+        newSolicitud.setHistorialCrediticio(null);
+        newSolicitud.setEscrituraPrimeraVivienda(null);
+        newSolicitud.setPlanNegocios(null);
+        newSolicitud.setEstadosFinancieros(null);
+        newSolicitud.setPresupuestoRemodelacion(null);
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNull(result);
+    } // SIN ARCHIVOS
+
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda14() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(75);
+        usuario.setWorkage(5);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(150000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNull(result);
+    } // EDAD MAYOR A 75
+
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda15() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 10; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(150000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNotNull(result);
+        assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
+        assertEquals(20, usuario.getSolicitud().getPlazo());
+        assertEquals(0.04, usuario.getSolicitud().getIntanu(), 0);
+        assertEquals(0.0033, usuario.getSolicitud().getIntmen(), 0);
+        assertEquals(200, usuario.getSolicitud().getSegudesg(), 0);
+        assertEquals(150, usuario.getSolicitud().getSeguince(), 0);
+        assertEquals(50, usuario.getSolicitud().getComiad(), 0);
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getComprobanteIngresos());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getCertificadoAvaluo());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getHistorialCrediticio());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getEscrituraPrimeraVivienda());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getPlanNegocios());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getEstadosFinancieros());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getPresupuestoRemodelacion());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getDicom());
+    } // PASA R71 SOLAMENTE
+
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda16() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(0 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(150000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNotNull(result);
+        assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
+        assertEquals(20, usuario.getSolicitud().getPlazo());
+        assertEquals(0.04, usuario.getSolicitud().getIntanu(), 0);
+        assertEquals(0.0033, usuario.getSolicitud().getIntmen(), 0);
+        assertEquals(200, usuario.getSolicitud().getSegudesg(), 0);
+        assertEquals(150, usuario.getSolicitud().getSeguince(), 0);
+        assertEquals(50, usuario.getSolicitud().getComiad(), 0);
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getComprobanteIngresos());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getCertificadoAvaluo());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getHistorialCrediticio());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getEscrituraPrimeraVivienda());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getPlanNegocios());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getEstadosFinancieros());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getPresupuestoRemodelacion());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getDicom());
+    } // PASA R71 Y R72
+
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda17() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        // Agregar un nuevo ahorro con otro tipo
+        AhorrosEntity nuevoAhorro = new AhorrosEntity();
+        nuevoAhorro.setTransaccion(-1000000);
+        nuevoAhorro.setTipo("RETIRO");
+        ahorros.add(nuevoAhorro);
+
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(150000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNotNull(result);
+        assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
+        assertEquals(20, usuario.getSolicitud().getPlazo());
+        assertEquals(0.04, usuario.getSolicitud().getIntanu(), 0);
+        assertEquals(0.0033, usuario.getSolicitud().getIntmen(), 0);
+        assertEquals(200, usuario.getSolicitud().getSegudesg(), 0);
+        assertEquals(150, usuario.getSolicitud().getSeguince(), 0);
+        assertEquals(50, usuario.getSolicitud().getComiad(), 0);
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getComprobanteIngresos());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getCertificadoAvaluo());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getHistorialCrediticio());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getEscrituraPrimeraVivienda());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getPlanNegocios());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getEstadosFinancieros());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getPresupuestoRemodelacion());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getDicom());
+    } // ERROR-3
+
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda171() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(5000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        // Agregar un nuevo ahorro con otro tipo
+        AhorrosEntity nuevoAhorro = new AhorrosEntity();
+        nuevoAhorro.setTransaccion(-1000000);
+        nuevoAhorro.setTipo("RETIRO");
+        ahorros.add(nuevoAhorro);
+
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(150000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNotNull(result);
+        assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
+        assertEquals(20, usuario.getSolicitud().getPlazo());
+        assertEquals(0.04, usuario.getSolicitud().getIntanu(), 0);
+        assertEquals(0.0033, usuario.getSolicitud().getIntmen(), 0);
+        assertEquals(200, usuario.getSolicitud().getSegudesg(), 0);
+        assertEquals(150, usuario.getSolicitud().getSeguince(), 0);
+        assertEquals(50, usuario.getSolicitud().getComiad(), 0);
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getComprobanteIngresos());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getCertificadoAvaluo());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getHistorialCrediticio());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getEscrituraPrimeraVivienda());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getPlanNegocios());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getEstadosFinancieros());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getPresupuestoRemodelacion());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getDicom());
+        assertEquals("RECHAZADA", newSolicitud.getState());
+    } // ERROR-2,3,4,5
+
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda18() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 24; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(5 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(150000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNotNull(result);
+        assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
+        assertEquals(20, usuario.getSolicitud().getPlazo());
+        assertEquals(0.04, usuario.getSolicitud().getIntanu(), 0);
+        assertEquals(0.0033, usuario.getSolicitud().getIntmen(), 0);
+        assertEquals(200, usuario.getSolicitud().getSegudesg(), 0);
+        assertEquals(150, usuario.getSolicitud().getSeguince(), 0);
+        assertEquals(50, usuario.getSolicitud().getComiad(), 0);
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getComprobanteIngresos());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getCertificadoAvaluo());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getHistorialCrediticio());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getEscrituraPrimeraVivienda());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getPlanNegocios());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getEstadosFinancieros());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getPresupuestoRemodelacion());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getDicom());
+    } // CASO 2 DE ERROR ANTES 4
+
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda19() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 24; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(5 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(150000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNotNull(result);
+        assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
+        assertEquals(20, usuario.getSolicitud().getPlazo());
+        assertEquals(0.04, usuario.getSolicitud().getIntanu(), 0);
+        assertEquals(0.0033, usuario.getSolicitud().getIntmen(), 0);
+        assertEquals(200, usuario.getSolicitud().getSegudesg(), 0);
+        assertEquals(150, usuario.getSolicitud().getSeguince(), 0);
+        assertEquals(50, usuario.getSolicitud().getComiad(), 0);
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getComprobanteIngresos());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getCertificadoAvaluo());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getHistorialCrediticio());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getEscrituraPrimeraVivienda());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getPlanNegocios());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getEstadosFinancieros());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getPresupuestoRemodelacion());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getDicom());
+    } // ERROR 4
+    //---------------------------------------------------------------------------//
     @Test
     public void testEvaluateCreditoPrimeraVivienda2() {
         // Arrange
@@ -536,8 +1833,459 @@ public class SistemaServiceTest {
         assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getPresupuestoRemodelacion());
         assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getDicom());
         assertEquals("APROBADO", newSolicitud.getState());
-    }
+    } // APROBADO
 
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda31() {
+        // Arrange
+        UsuarioEntity usuario = new UsuarioEntity();
+        Long userId = 1L;
+
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            //ahorro.setId((long) i + 1); // Asignar un ID único a cada ahorro
+            ahorro.setTransaccion(0 * i); // Asegúrate de que estos valores sean positivos y mayores a 15,000
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+        usuario.setId(userId);
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(200000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(150000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(20000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNotNull(result);
+        assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
+        assertEquals(20, usuario.getSolicitud().getPlazo());
+        assertEquals(0.04, usuario.getSolicitud().getIntanu(), 0);
+        assertEquals(0.0033, usuario.getSolicitud().getIntmen(), 0);
+        assertEquals(200, usuario.getSolicitud().getSegudesg(), 0);
+        assertEquals(150, usuario.getSolicitud().getSeguince(), 0);
+        assertEquals(50, usuario.getSolicitud().getComiad(), 0);
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getComprobanteIngresos());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getCertificadoAvaluo());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getHistorialCrediticio());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getEscrituraPrimeraVivienda());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getPlanNegocios());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getEstadosFinancieros());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getPresupuestoRemodelacion());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getDicom());
+        assertEquals("REVISION ADICIONAL", newSolicitud.getState());
+    } // PASA R71 Y R72
+
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda32() {
+        // Arrange
+        UsuarioEntity usuario = new UsuarioEntity();
+        Long userId = 1L;
+
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            //ahorro.setId((long) i + 1); // Asignar un ID único a cada ahorro
+            ahorro.setTransaccion(20000 * i); // Asegúrate de que estos valores sean positivos y mayores a 15,000
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        // Agregar un nuevo ahorro con otro tipo
+        AhorrosEntity nuevoAhorro = new AhorrosEntity();
+        nuevoAhorro.setTransaccion(-1000000);
+        nuevoAhorro.setTipo("RETIRO");
+        ahorros.add(nuevoAhorro);
+
+        List<CreditoEntity> creditos = null;
+        usuario.setId(userId);
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(200000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(150000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+        // imprimir ahorros del ususario
+        for (AhorrosEntity ahorro : ahorros) {
+            System.out.println("Tipo: " + ahorro.getTipo() + ", Transacción: " + ahorro.getTransaccion());
+        }
+
+        // Act
+        when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(20000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNotNull(result);
+        assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
+        assertEquals(20, usuario.getSolicitud().getPlazo());
+        assertEquals(0.04, usuario.getSolicitud().getIntanu(), 0);
+        assertEquals(0.0033, usuario.getSolicitud().getIntmen(), 0);
+        assertEquals(200, usuario.getSolicitud().getSegudesg(), 0);
+        assertEquals(150, usuario.getSolicitud().getSeguince(), 0);
+        assertEquals(50, usuario.getSolicitud().getComiad(), 0);
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getComprobanteIngresos());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getCertificadoAvaluo());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getHistorialCrediticio());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getEscrituraPrimeraVivienda());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getPlanNegocios());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getEstadosFinancieros());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getPresupuestoRemodelacion());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getDicom());
+    } // PASA R71 Y R74
+
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda321() {
+        // Arrange
+        UsuarioEntity usuario = new UsuarioEntity();
+        Long userId = 1L;
+
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            //ahorro.setId((long) i + 1); // Asignar un ID único a cada ahorro
+            ahorro.setTransaccion(2000000 * i); // Asegúrate de que estos valores sean positivos y mayores a 15,000
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        // Agregar un nuevo ahorro con otro tipo
+        AhorrosEntity nuevoAhorro = new AhorrosEntity();
+        nuevoAhorro.setTransaccion(-1000000);
+        nuevoAhorro.setTipo("RETIRO");
+        ahorros.add(nuevoAhorro);
+
+        List<CreditoEntity> creditos = null;
+        usuario.setId(userId);
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(200000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(150000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+        // imprimir ahorros del ususario
+        for (AhorrosEntity ahorro : ahorros) {
+            System.out.println("Tipo: " + ahorro.getTipo() + ", Transacción: " + ahorro.getTransaccion());
+        }
+
+        // Act
+        when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(20000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNotNull(result);
+        assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
+        assertEquals(20, usuario.getSolicitud().getPlazo());
+        assertEquals(0.04, usuario.getSolicitud().getIntanu(), 0);
+        assertEquals(0.0033, usuario.getSolicitud().getIntmen(), 0);
+        assertEquals(200, usuario.getSolicitud().getSegudesg(), 0);
+        assertEquals(150, usuario.getSolicitud().getSeguince(), 0);
+        assertEquals(50, usuario.getSolicitud().getComiad(), 0);
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getComprobanteIngresos());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getCertificadoAvaluo());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getHistorialCrediticio());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getEscrituraPrimeraVivienda());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getPlanNegocios());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getEstadosFinancieros());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getPresupuestoRemodelacion());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getDicom());
+    } //ERROR-3
+
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda322() {
+        // Arrange
+        UsuarioEntity usuario = new UsuarioEntity();
+        Long userId = 1L;
+
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 24; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            //ahorro.setId((long) i + 1); // Asignar un ID único a cada ahorro
+            ahorro.setTransaccion(20000 * i); // Asegúrate de que estos valores sean positivos y mayores a 15,000
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+
+        List<CreditoEntity> creditos = null;
+        usuario.setId(userId);
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(200000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(150000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+        // imprimir ahorros del ususario
+        for (AhorrosEntity ahorro : ahorros) {
+            System.out.println("Tipo: " + ahorro.getTipo() + ", Transacción: " + ahorro.getTransaccion());
+        }
+
+        // Act
+        when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(20000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNotNull(result);
+        assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
+        assertEquals(20, usuario.getSolicitud().getPlazo());
+        assertEquals(0.04, usuario.getSolicitud().getIntanu(), 0);
+        assertEquals(0.0033, usuario.getSolicitud().getIntmen(), 0);
+        assertEquals(200, usuario.getSolicitud().getSegudesg(), 0);
+        assertEquals(150, usuario.getSolicitud().getSeguince(), 0);
+        assertEquals(50, usuario.getSolicitud().getComiad(), 0);
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getComprobanteIngresos());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getCertificadoAvaluo());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getHistorialCrediticio());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getEscrituraPrimeraVivienda());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getPlanNegocios());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getEstadosFinancieros());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getPresupuestoRemodelacion());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getDicom());
+    } // APROBADO
+
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda323() {
+        // Arrange
+        UsuarioEntity usuario = new UsuarioEntity();
+        Long userId = 1L;
+
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 24; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            //ahorro.setId((long) i + 1); // Asignar un ID único a cada ahorro
+            ahorro.setTransaccion(20000 * i); // Asegúrate de que estos valores sean positivos y mayores a 15,000
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+
+        List<CreditoEntity> creditos = null;
+        usuario.setId(userId);
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(200000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(150000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+        // imprimir ahorros del ususario
+        for (AhorrosEntity ahorro : ahorros) {
+            System.out.println("Tipo: " + ahorro.getTipo() + ", Transacción: " + ahorro.getTransaccion());
+        }
+
+        // Act
+        when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(20000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNotNull(result);
+        assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
+        assertEquals(20, usuario.getSolicitud().getPlazo());
+        assertEquals(0.04, usuario.getSolicitud().getIntanu(), 0);
+        assertEquals(0.0033, usuario.getSolicitud().getIntmen(), 0);
+        assertEquals(200, usuario.getSolicitud().getSegudesg(), 0);
+        assertEquals(150, usuario.getSolicitud().getSeguince(), 0);
+        assertEquals(50, usuario.getSolicitud().getComiad(), 0);
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getComprobanteIngresos());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getCertificadoAvaluo());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getHistorialCrediticio());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getEscrituraPrimeraVivienda());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getPlanNegocios());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getEstadosFinancieros());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getPresupuestoRemodelacion());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getDicom());
+    } // ERROR-4
+    //---------------------------------------------------------------------------//
     @Test
     public void testEvaluateCreditoSegundaVivienda() {
         // Arrange
@@ -599,6 +2347,85 @@ public class SistemaServiceTest {
         System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
+        //assertEquals("RECHAZADA", newSolicitud.getState());
+    } //ERROR-1
+
+    @Test
+    public void testEvaluateCreditoSegundaVivienda1() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(1);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("SEGUNDA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(130000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for (int i = 0; i < usuario.getNotifications().size(); i++) {
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNotNull(result);
+        assertEquals(130000, usuario.getSolicitud().getMontop(), 0);
+        assertEquals(20, usuario.getSolicitud().getPlazo());
+        assertEquals(0.04, usuario.getSolicitud().getIntanu(), 0);
+        assertEquals(0.0033, usuario.getSolicitud().getIntmen(), 0);
+        assertEquals(200, usuario.getSolicitud().getSegudesg(), 0);
+        assertEquals(150, usuario.getSolicitud().getSeguince(), 0);
+        assertEquals(50, usuario.getSolicitud().getComiad(), 0);
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getComprobanteIngresos());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getCertificadoAvaluo());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getHistorialCrediticio());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getEscrituraPrimeraVivienda());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getPlanNegocios());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getEstadosFinancieros());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getPresupuestoRemodelacion());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getDicom());
         //assertEquals("RECHAZADA", newSolicitud.getState());
     }
 
@@ -665,8 +2492,215 @@ public class SistemaServiceTest {
         // Assert
         assertNotNull(result);
         //assertEquals("RECHAZADA", newSolicitud.getState());
-    }
+    } // APROBADO
 
+    @Test
+    public void testEvaluateCreditoSegundaVivienda21() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(75);
+        usuario.setWorkage(5);
+        usuario.setHouses(1);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("SEGUNDA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(130000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for (int i = 0; i < usuario.getNotifications().size(); i++) {
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNull(result);
+        //assertEquals("RECHAZADA", newSolicitud.getState());
+    } // EDAD NO APROBADA
+
+    @Test
+    public void testEvaluateCreditoSegundaVivienda211() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(50000000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        // Agregar un nuevo ahorro con otro tipo
+        AhorrosEntity nuevoAhorro = new AhorrosEntity();
+        nuevoAhorro.setTransaccion(-1000000);
+        nuevoAhorro.setTipo("RETIRO");
+        ahorros.add(nuevoAhorro);
+
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(1);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("SEGUNDA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(130000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for (int i = 0; i < usuario.getNotifications().size(); i++) {
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNotNull(result);
+        //assertEquals("RECHAZADA", newSolicitud.getState());
+    } // LOS 2 ERRORES-3
+
+    @Test
+    public void testEvaluateCreditoSegundaVivienda2111() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        // Agregar un nuevo ahorro con otro tipo
+        AhorrosEntity nuevoAhorro = new AhorrosEntity();
+        nuevoAhorro.setTransaccion(-1000000);
+        nuevoAhorro.setTipo("RETIRO");
+        ahorros.add(nuevoAhorro);
+
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(1);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("SEGUNDA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(130000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for (int i = 0; i < usuario.getNotifications().size(); i++) {
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNotNull(result);
+        //assertEquals("RECHAZADA", newSolicitud.getState());
+    } // ERROR-3
+    //---------------------------------------------------------------------------//
     @Test
     public void testEvaluateCreditoPropiedadComercial() {
         // Arrange
@@ -728,7 +2762,7 @@ public class SistemaServiceTest {
         System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
-    }
+    } //ERROR-1
 
     @Test
     public void testEvaluateCreditoPropiedadComercial2() {
@@ -792,8 +2826,144 @@ public class SistemaServiceTest {
         System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
-    }
+    } // APROBADO
 
+    @Test
+    public void testEvaluateCreditoPropiedadComercial21() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(75);
+        usuario.setWorkage(5);
+        usuario.setHouses(1);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PROPIEDAD COMERCIAL");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(110000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.06); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0005);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for (int i = 0; i < usuario.getNotifications().size(); i++) {
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNull(result);
+    } // EDAD = 75
+
+    @Test
+    public void testEvaluateCreditoPropiedadComercial22() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        // Agregar un nuevo ahorro con otro tipo
+        AhorrosEntity nuevoAhorro = new AhorrosEntity();
+        nuevoAhorro.setTransaccion(-1000000);
+        nuevoAhorro.setTipo("RETIRO");
+        ahorros.add(nuevoAhorro);
+
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(1);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PROPIEDAD COMERCIAL");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(110000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.06); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0005);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for (int i = 0; i < usuario.getNotifications().size(); i++) {
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNotNull(result);
+    } // RETIRO AL FINAL
+
+
+    //---------------------------------------------------------------------------//
     @Test
     public void testEvaluateCreditoRemodelacion() {
         // Arrange
@@ -983,7 +3153,6 @@ public class SistemaServiceTest {
         // Assert
         assertNotNull(result);
     }
-
     //---------------------------------------------------------------------------//
     //---------------------------------------------------------------------------//
     @Test
@@ -1012,6 +3181,46 @@ public class SistemaServiceTest {
         // Verificar resultados
         assertNotNull(result);
         assertEquals(solicitud, result);
+    }
+    @Test
+    public void testFollowCreditoSolicitudNula() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        usuario.setId(userId);
+        usuario.setSolicitud(null);
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+
+        // Act
+        CreditoEntity result = sistemaService.followCredito(userId);
+
+        // Assert
+        assertNull(result);
+    }
+
+    @Test
+    public void testFollowCreditoUsuarioNoEncontrado() {
+        // Arrange
+        Long userId = 1L;
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            sistemaService.followCredito(userId);
+        });
+    }
+
+    @Test
+    public void testFollowCreditoNoSolicitud() {
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        usuario.setSolicitud(null);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+
+        CreditoEntity result = sistemaService.followCredito(userId);
+
+        assertNull(result);
     }
     //---------------------------------------------------------------------------//
     //---------------------------------------------------------------------------//
@@ -1072,17 +3281,55 @@ public class SistemaServiceTest {
     }
 
     @Test
-    public void testFollowCreditoNoSolicitud() {
+    public void testCalcularCostosTotales4() {
         Long userId = 1L;
         UsuarioEntity usuario = new UsuarioEntity();
-        usuario.setSolicitud(null);
-
+        usuario.setId(userId);
+        CreditoEntity solicitud = null;
         when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
 
-        CreditoEntity result = sistemaService.followCredito(userId);
+        List<Double> costosTotales = sistemaService.calcularCostosTotales(userId);
 
-        assertNull(result);
+        assertNull(costosTotales);
     }
+
+    @Test
+    public void testCalcularCostosTotales5() {
+        // Configurar mocks y datos de prueba
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        usuario.setId(userId);
+        CreditoEntity solicitud = new CreditoEntity();
+        solicitud.setMontop(100000);
+        solicitud.setPlazo(10);
+        solicitud.setIntanu(0.05); // Tasa de interés anual
+        solicitud.setIntmen(11.004); // Tasa de interés mensual
+        solicitud.setSegudesg(0.001);
+        solicitud.setSeguince(0.002);
+        solicitud.setComiad(0.003);
+        usuario.setSolicitud(solicitud);
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+
+        // Llamar al método a probar
+        List<Double> resultados = sistemaService.calcularCostosTotales(userId);
+
+        // Verificar resultados
+        assertNull(resultados);
+    }
+
+    @Test
+    public void testCalcularCostosTotalesUsuarioNoEncontrado() {
+        Long userId = 1L;
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            sistemaService.calcularCostosTotales(userId);
+        });
+
+        assertEquals("ERROR: USUARIO NO ENCONTRADO", exception.getMessage());
+    }
+
+
     //---------------------------------------------------------------------------//
     //---------------------------------------------------------------------------//
     @Test
@@ -1093,6 +3340,25 @@ public class SistemaServiceTest {
         when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
         List<String> result = sistemaService.getNotifications(1L);
         assertThat(result).isNotNull();
+    }
+
+    @Test
+    public void testGetNotifications2() {
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        List<String> notifications = Arrays.asList("Notification 1", "Notification 2");
+        usuario.setNotifications(notifications);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+
+        List<String> result = sistemaService.getNotifications(userId);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals("Notification 1", result.get(0));
+        assertEquals("Notification 2", result.get(1));
+
+        verify(usuarioRepository, times(1)).findById(userId);
     }
     //---------------------------------------------------------------------------//
     //---------------------------------------------------------------------------//
@@ -1124,5 +3390,22 @@ public class SistemaServiceTest {
         assertEquals("EN REVISIÓN INICIAL", solicitud.getState());
         verify(creditoRepository, times(1)).save(any(CreditoEntity.class));
         verify(usuarioRepository, times(1)).save(any(UsuarioEntity.class));
+    }
+    @Test
+    public void testUpdateState3() {
+        // Configurar mocks y datos de prueba
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        usuario.setId(userId);
+        CreditoEntity solicitud = null;
+        usuario.setSolicitud(solicitud);
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+
+        // Llamar al método a probar
+        int result = sistemaService.updateState(userId, 1);
+
+        // Verificar resultados
+        assertEquals(-1, result);
+
     }
 }
