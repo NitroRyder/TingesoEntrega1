@@ -35,7 +35,7 @@ public class UsuarioService {
     //------------------------------------------------------------------//
     // * ACTUALIZAR CLIENTE
     public UsuarioEntity updateUsuario(Long id, int valorpropiedad, int ingresos, int sumadeuda, String objective) {
-        UsuarioEntity usuario = usuarioRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        UsuarioEntity usuario = usuarioRepository.findById(id).orElse(null);
         if(usuario == null) {
             return null;
         }
