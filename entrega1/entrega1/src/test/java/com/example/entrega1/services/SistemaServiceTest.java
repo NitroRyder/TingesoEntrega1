@@ -268,6 +268,21 @@ public class SistemaServiceTest {
         verify(creditoRepository, times(1)).save(newSolicitud);
     }
 
+    @Test
+    public void testEvaluateCredito_SolicitudNoEncontrada() {
+        // Configurar mocks y datos de prueba
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        usuario.setId(userId);
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+
+        // Llamar al método a probar
+        Map<String, Object> response = sistemaService.evaluateCredito(userId);
+
+        // Verificar resultados
+        assertNull(response);
+        verify(usuarioRepository, times(1)).save(any(UsuarioEntity.class));
+    }
     //---------------------------------------------------------------------------//
     //---------------------------------------------------------------------------//
     @Test
@@ -980,6 +995,24 @@ public class SistemaServiceTest {
         CreditoEntity result = sistemaService.followCredito(1L);
         assertThat(result).isNotNull();
     }
+
+    @Test
+    public void testFollowCredito2() {
+        // Configurar mocks y datos de prueba
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        usuario.setId(userId);
+        CreditoEntity solicitud = new CreditoEntity();
+        usuario.setSolicitud(solicitud);
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+
+        // Llamar al método a probar
+        CreditoEntity result = sistemaService.followCredito(userId);
+
+        // Verificar resultados
+        assertNotNull(result);
+        assertEquals(solicitud, result);
+    }
     //---------------------------------------------------------------------------//
     //---------------------------------------------------------------------------//
     @Test
@@ -1012,6 +1045,44 @@ public class SistemaServiceTest {
         assertNotNull(costosTotales);
         assertEquals(6, costosTotales.size());
     }
+
+    @Test
+    public void testCalcularCostosTotales3() {
+        // Configurar mocks y datos de prueba
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        usuario.setId(userId);
+        CreditoEntity solicitud = new CreditoEntity();
+        solicitud.setMontop(100000);
+        solicitud.setPlazo(10);
+        solicitud.setIntanu(0.05);
+        solicitud.setIntmen(0.004);
+        solicitud.setSegudesg(0.001);
+        solicitud.setSeguince(0.002);
+        solicitud.setComiad(0.003);
+        usuario.setSolicitud(solicitud);
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+
+        // Llamar al método a probar
+        List<Double> resultados = sistemaService.calcularCostosTotales(userId);
+
+        // Verificar resultados
+        assertNotNull(resultados);
+        assertEquals(6, resultados.size());
+    }
+
+    @Test
+    public void testFollowCreditoNoSolicitud() {
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        usuario.setSolicitud(null);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+
+        CreditoEntity result = sistemaService.followCredito(userId);
+
+        assertNull(result);
+    }
     //---------------------------------------------------------------------------//
     //---------------------------------------------------------------------------//
     @Test
@@ -1033,5 +1104,25 @@ public class SistemaServiceTest {
         when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
         int result = sistemaService.updateState(1L, 1);
         assertThat(result).isEqualTo(0);
+    }
+
+    @Test
+    public void testUpdateState2() {
+        // Configurar mocks y datos de prueba
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        usuario.setId(userId);
+        CreditoEntity solicitud = new CreditoEntity();
+        usuario.setSolicitud(solicitud);
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+
+        // Llamar al método a probar
+        int result = sistemaService.updateState(userId, 1);
+
+        // Verificar resultados
+        assertEquals(0, result);
+        assertEquals("EN REVISIÓN INICIAL", solicitud.getState());
+        verify(creditoRepository, times(1)).save(any(CreditoEntity.class));
+        verify(usuarioRepository, times(1)).save(any(UsuarioEntity.class));
     }
 }
