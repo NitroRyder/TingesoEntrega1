@@ -451,11 +451,6 @@ public class SistemaServiceTest {
 
         // Act
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
         assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
@@ -584,10 +579,6 @@ public class SistemaServiceTest {
         // Act
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
 
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNull(result);
     } // TASA DE INTERÉS MENSUAL ES INCORRECTA
@@ -647,11 +638,6 @@ public class SistemaServiceTest {
 
         // Act
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNull(result);
     } // RELACIÓN CUOTA/INGRESO RECHAZADA:
@@ -711,11 +697,6 @@ public class SistemaServiceTest {
 
         // Act
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNull(result);
     } //DICOM MALO, longitud < 4
@@ -775,11 +756,6 @@ public class SistemaServiceTest {
 
         // Act
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNull(result);
     } //DICOM MALO, [4] no es F
@@ -839,11 +815,6 @@ public class SistemaServiceTest {
 
         // Act
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNull(result);
     } //DICOM MALO, [2] no es D
@@ -903,11 +874,6 @@ public class SistemaServiceTest {
 
         // Act
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNull(result);
     } //DICOM MALO, [1] no es P
@@ -967,11 +933,6 @@ public class SistemaServiceTest {
 
         // Act
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNull(result);
     } //DICOM MALO, [0] no es %
@@ -1031,11 +992,6 @@ public class SistemaServiceTest {
 
         // Act
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNull(result);
     } //DICOM NO INGRESADO
@@ -1095,11 +1051,6 @@ public class SistemaServiceTest {
 
         // Act
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNull(result);
     } // ASALARIADO CON MENOS DE 1 AÑO
@@ -1159,11 +1110,6 @@ public class SistemaServiceTest {
 
         // Act
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNull(result);
     } // NI INDEPENDIENTE NI ASALARIADO
@@ -1223,11 +1169,6 @@ public class SistemaServiceTest {
 
         // Act
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
         assertEquals("INDEPENDIENTE", usuario.getIndependiente());
@@ -1287,11 +1228,6 @@ public class SistemaServiceTest {
 
         // Act
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNull(result);
     } //LA SUMA DE DEUDAS NO PUEDE SER MAYOR AL 50% DE LOS INGRESOS
@@ -1351,11 +1287,6 @@ public class SistemaServiceTest {
 
         // Act
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNull(result);
     } // SIN ARCHIVOS
@@ -1415,11 +1346,6 @@ public class SistemaServiceTest {
 
         // Act
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNull(result);
     } // EDAD MAYOR A 75
@@ -1480,11 +1406,6 @@ public class SistemaServiceTest {
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
         assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
@@ -1560,11 +1481,6 @@ public class SistemaServiceTest {
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
         assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
@@ -1646,11 +1562,6 @@ public class SistemaServiceTest {
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
         assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
@@ -1732,11 +1643,6 @@ public class SistemaServiceTest {
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
         assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
@@ -1813,11 +1719,6 @@ public class SistemaServiceTest {
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
         assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
@@ -1893,11 +1794,6 @@ public class SistemaServiceTest {
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
         assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
@@ -1978,11 +1874,6 @@ public class SistemaServiceTest {
 
         // Act
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
         assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
@@ -2058,19 +1949,9 @@ public class SistemaServiceTest {
 
         when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
         when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
-        // imprimir ahorros del ususario
-        for (AhorrosEntity ahorro : ahorros) {
-            System.out.println("Tipo: " + ahorro.getTipo() + ", Transacción: " + ahorro.getTransaccion());
-        }
-
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(20000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
         assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
@@ -2143,19 +2024,9 @@ public class SistemaServiceTest {
 
         when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
         when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
-        // imprimir ahorros del ususario
-        for (AhorrosEntity ahorro : ahorros) {
-            System.out.println("Tipo: " + ahorro.getTipo() + ", Transacción: " + ahorro.getTransaccion());
-        }
-
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(20000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
         assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
@@ -2223,19 +2094,10 @@ public class SistemaServiceTest {
 
         when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
         when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
-        // imprimir ahorros del ususario
-        for (AhorrosEntity ahorro : ahorros) {
-            System.out.println("Tipo: " + ahorro.getTipo() + ", Transacción: " + ahorro.getTransaccion());
-        }
 
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(20000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNull(result);
     } // FALTA DE ARCHIVOS
@@ -2300,11 +2162,6 @@ public class SistemaServiceTest {
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(20000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
         assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
@@ -2387,19 +2244,9 @@ public class SistemaServiceTest {
 
         when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
         when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
-        // imprimir ahorros del ususario
-        for (AhorrosEntity ahorro : ahorros) {
-            System.out.println("Tipo: " + ahorro.getTipo() + ", Transacción: " + ahorro.getTransaccion());
-        }
-
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(20000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
         assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
@@ -2481,19 +2328,10 @@ public class SistemaServiceTest {
 
         when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
         when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
-        // imprimir ahorros del ususario
-        for (AhorrosEntity ahorro : ahorros) {
-            System.out.println("Tipo: " + ahorro.getTipo() + ", Transacción: " + ahorro.getTransaccion());
-        }
 
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(20000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
         assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
@@ -2570,19 +2408,10 @@ public class SistemaServiceTest {
 
         when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
         when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
-        // imprimir ahorros del ususario
-        for (AhorrosEntity ahorro : ahorros) {
-            System.out.println("Tipo: " + ahorro.getTipo() + ", Transacción: " + ahorro.getTransaccion());
-        }
 
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(20000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
         assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
@@ -2660,18 +2489,10 @@ public class SistemaServiceTest {
         when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
         when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
         // imprimir ahorros del ususario
-        for (AhorrosEntity ahorro : ahorros) {
-            System.out.println("Tipo: " + ahorro.getTipo() + ", Transacción: " + ahorro.getTransaccion());
-        }
-
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(20000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
 
-        for(int i = 0; i < usuario.getNotifications().size(); i++){
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
         assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
@@ -2745,11 +2566,6 @@ public class SistemaServiceTest {
 
         // Act
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for (int i = 0; i < usuario.getNotifications().size(); i++) {
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
         //assertEquals("RECHAZADA", newSolicitud.getState());
@@ -2809,11 +2625,6 @@ public class SistemaServiceTest {
 
         // Act
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for (int i = 0; i < usuario.getNotifications().size(); i++) {
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
         assertEquals(130000, usuario.getSolicitud().getMontop(), 0);
@@ -2889,11 +2700,6 @@ public class SistemaServiceTest {
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for (int i = 0; i < usuario.getNotifications().size(); i++) {
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
         //assertEquals("RECHAZADA", newSolicitud.getState());
@@ -2951,11 +2757,6 @@ public class SistemaServiceTest {
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for (int i = 0; i < usuario.getNotifications().size(); i++) {
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
     } // APROBADO CON DOCUMENTOS JUSTOS
@@ -3011,11 +2812,6 @@ public class SistemaServiceTest {
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for (int i = 0; i < usuario.getNotifications().size(); i++) {
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNull(result);
     } // FALTA DE ARCHIVOS
@@ -3075,11 +2871,6 @@ public class SistemaServiceTest {
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for (int i = 0; i < usuario.getNotifications().size(); i++) {
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNull(result);
         //assertEquals("RECHAZADA", newSolicitud.getState());
@@ -3146,11 +2937,6 @@ public class SistemaServiceTest {
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for (int i = 0; i < usuario.getNotifications().size(); i++) {
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
         //assertEquals("RECHAZADA", newSolicitud.getState());
@@ -3217,11 +3003,6 @@ public class SistemaServiceTest {
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for (int i = 0; i < usuario.getNotifications().size(); i++) {
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
         //assertEquals("RECHAZADA", newSolicitud.getState());
@@ -3281,11 +3062,6 @@ public class SistemaServiceTest {
 
         // Act
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for (int i = 0; i < usuario.getNotifications().size(); i++) {
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
     } //ERROR-1
@@ -3345,11 +3121,6 @@ public class SistemaServiceTest {
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for (int i = 0; i < usuario.getNotifications().size(); i++) {
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
     } // APROBADO
@@ -3406,11 +3177,6 @@ public class SistemaServiceTest {
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for (int i = 0; i < usuario.getNotifications().size(); i++) {
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
     } // APROBADO CON DOCUMENTOS JUSTOS
@@ -3466,11 +3232,6 @@ public class SistemaServiceTest {
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for (int i = 0; i < usuario.getNotifications().size(); i++) {
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNull(result);
     } // FALTA DE ARCHIVOS
@@ -3530,11 +3291,6 @@ public class SistemaServiceTest {
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for (int i = 0; i < usuario.getNotifications().size(); i++) {
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNull(result);
     } // EDAD = 75
@@ -3600,11 +3356,6 @@ public class SistemaServiceTest {
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for (int i = 0; i < usuario.getNotifications().size(); i++) {
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
     } // RETIRO AL FINAL
@@ -3664,11 +3415,6 @@ public class SistemaServiceTest {
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for (int i = 0; i < usuario.getNotifications().size(); i++) {
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNull(result);
     } // DICOM == NULL
@@ -3728,11 +3474,6 @@ public class SistemaServiceTest {
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for (int i = 0; i < usuario.getNotifications().size(); i++) {
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNull(result);
     } // DICOM == LONGITUD = 0
@@ -3791,11 +3532,6 @@ public class SistemaServiceTest {
 
         // Act
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for (int i = 0; i < usuario.getNotifications().size(); i++) {
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
     } // ERROR-1
@@ -3854,11 +3590,6 @@ public class SistemaServiceTest {
 
         // Act
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for (int i = 0; i < usuario.getNotifications().size(); i++) {
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
     } // ERROR-1, 2, 3.1 Y 3.2
@@ -3918,11 +3649,6 @@ public class SistemaServiceTest {
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for (int i = 0; i < usuario.getNotifications().size(); i++) {
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
     } // APROBADO
@@ -3978,11 +3704,6 @@ public class SistemaServiceTest {
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for (int i = 0; i < usuario.getNotifications().size(); i++) {
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
     } // APROBADO CON DOCUMENTOS JUSTOS
@@ -4037,11 +3758,6 @@ public class SistemaServiceTest {
         // Act
         when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
         Map<String, Object> result = sistemaService.evaluateCredito(userId);
-
-        for (int i = 0; i < usuario.getNotifications().size(); i++) {
-            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
-        }
-        System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNull(result);
     } // FALTA DE DOCUMENTOS

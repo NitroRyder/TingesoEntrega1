@@ -227,7 +227,7 @@ public class SistemaService {
         //-------------------------------------------------------------------------//
         // ANÁLISIS DE QUE LOS DATOS SOLICITADOS DEL CRÉDITO SEAN CORRECTOS// VALORES REDONDEADOS PARA COMPARAR
         if (Math.round(intmen) == Math.round(intanu / 12.0 / 100.0)) {
-            System.out.println("TASA DE INTERÉS MENSUAL CORRECTA");
+            //System.out.println("TASA DE INTERÉS MENSUAL CORRECTA");
         } else {
             // MODIFICAR EL ESTADO DE LA SOLICITUD A "RECHAZADA"
             solicitud.setState("RECHAZADA");
