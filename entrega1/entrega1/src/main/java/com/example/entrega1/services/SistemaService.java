@@ -674,15 +674,15 @@ public class SistemaService {
         }
         //-------------------------------------------------------------------------//
         if (state ==1) {
-            solicitud.setState("EN REVISIÓN INICIAL");
+            solicitud.setState("EN REVISION INICIAL");
             usuario.addNotification("ESTADO DE SOLICITUD ACTUALIZADO: SU SOLICITUD SE ENCUENTRA EN EL ESTADO: EN REVISIÓN INICIAL");
 
         }else if (state ==2) {
-            solicitud.setState("PENDIENTE DE DOCUMENTACIÓN");
+            solicitud.setState("PENDIENTE DE DOCUMENTACION");
             usuario.addNotification("ESTADO DE SOLICITUD ACTUALIZADO: SU SOLICITUD SE ENCUENTRA EN EL ESTADO: PENDIENTE DE DOCUMENTACIÓN");
 
         }else if (state ==3) {
-            solicitud.setState("EN EVALUACIÓN");
+            solicitud.setState("EN EVALUACION");
             usuario.addNotification("ESTADO DE SOLICITUD ACTUALIZADO: SU SOLICITUD SE ENCUENTRA EN EL ESTADO: EN EVALUACIÓN");
 
         }else if (state ==4) {
@@ -690,7 +690,7 @@ public class SistemaService {
             usuario.addNotification("ESTADO DE SOLICITUD ACTUALIZADO: SU SOLICITUD SE ENCUENTRA EN EL ESTADO: PRE-APROBADA");
 
         }else if (state ==5) {
-            solicitud.setState("EN APROBACIÓN FINAL");
+            solicitud.setState("EN APROBACION FINAL");
             usuario.addNotification("ESTADO DE SOLICITUD ACTUALIZADO: SU SOLICITUD SE ENCUENTRA EN EL ESTADO: EN APROBACIÓN FINAL");
 
         }else if (state ==6) {

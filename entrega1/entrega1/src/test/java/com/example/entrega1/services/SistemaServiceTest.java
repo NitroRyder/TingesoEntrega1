@@ -74,8 +74,8 @@ public class SistemaServiceTest {
     @Test
     public void testCreditoHipotecarioRemodelacion() {
         SistemaService sistemaService = new SistemaService();
-        double result = sistemaService.Credito_Hipotecario("12345678-9", 100000, 0.045, 15, 200000);
-        assertEquals(557.4430814922548, result, 0.01);
+        double result = sistemaService.Credito_Hipotecario("12345678-9", 100000, 0.06, 15, 200000);
+        assertEquals(558.0731942287285, result, 0.01);
     }
 
     @Test
@@ -701,7 +701,7 @@ public class SistemaServiceTest {
         newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
         newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
         newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
-        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 1, 2,});
+        newSolicitud.setDicom(new byte[]{2,3,4});
         newSolicitud.setState("PENDIENTE");
 
         usuario.setSolicitud(newSolicitud);
@@ -718,7 +718,263 @@ public class SistemaServiceTest {
         System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNull(result);
-    } //DICOM MALO
+    } //DICOM MALO, longitud < 4
+
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda11112() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(150000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D',1,2,3,4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNull(result);
+    } //DICOM MALO, [4] no es F
+
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda11113() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(150000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 1 ,'F', 1, 2,3,4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNull(result);
+    } //DICOM MALO, [2] no es D
+
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda11114() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(150000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 1, 'D', 'F', 1, 2,3,4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNull(result);
+    } //DICOM MALO, [1] no es P
+
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda11115() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(150000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{1, 'P', 'D', 'F', 1, 2,3,4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNull(result);
+    } //DICOM MALO, [0] no es %
 
     @Test
     public void testEvaluateCreditoPrimeraVivienda111111() {
@@ -1836,6 +2092,155 @@ public class SistemaServiceTest {
     } // APROBADO
 
     @Test
+    public void testEvaluateCreditoPrimeraVivienda4() {
+        // Arrange
+        UsuarioEntity usuario = new UsuarioEntity();
+        Long userId = 1L;
+
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            //ahorro.setId((long) i + 1); // Asignar un ID único a cada ahorro
+            ahorro.setTransaccion(20000 * i); // Asegúrate de que estos valores sean positivos y mayores a 15,000
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+        usuario.setId(userId);
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(200000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(150000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+        // imprimir ahorros del ususario
+        for (AhorrosEntity ahorro : ahorros) {
+            System.out.println("Tipo: " + ahorro.getTipo() + ", Transacción: " + ahorro.getTransaccion());
+        }
+
+        // Act
+        when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(20000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNotNull(result);
+        assertEquals(150000, usuario.getSolicitud().getMontop(), 0);
+        assertEquals(20, usuario.getSolicitud().getPlazo());
+        assertEquals(0.04, usuario.getSolicitud().getIntanu(), 0);
+        assertEquals(0.0033, usuario.getSolicitud().getIntmen(), 0);
+        assertEquals(200, usuario.getSolicitud().getSegudesg(), 0);
+        assertEquals(150, usuario.getSolicitud().getSeguince(), 0);
+        assertEquals(50, usuario.getSolicitud().getComiad(), 0);
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getComprobanteIngresos());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getCertificadoAvaluo());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getHistorialCrediticio());
+        assertArrayEquals(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4}, usuario.getSolicitud().getDicom());
+        assertEquals("APROBADO", newSolicitud.getState());
+    } // APROBADO CON LOS DOCUMENTOS JUSTOS
+
+    @Test
+    public void testEvaluateCreditoPrimeraVivienda41() {
+        // Arrange
+        UsuarioEntity usuario = new UsuarioEntity();
+        Long userId = 1L;
+
+        // Arrange
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            //ahorro.setId((long) i + 1); // Asignar un ID único a cada ahorro
+            ahorro.setTransaccion(20000 * i); // Asegúrate de que estos valores sean positivos y mayores a 15,000
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+        usuario.setId(userId);
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(0);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(200000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PRIMERA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(150000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+        // imprimir ahorros del ususario
+        for (AhorrosEntity ahorro : ahorros) {
+            System.out.println("Tipo: " + ahorro.getTipo() + ", Transacción: " + ahorro.getTransaccion());
+        }
+
+        // Act
+        when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(20000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for(int i = 0; i < usuario.getNotifications().size(); i++){
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNull(result);
+    } // FALTA DE ARCHIVOS
+
+    @Test
     public void testEvaluateCreditoPrimeraVivienda31() {
         // Arrange
         UsuarioEntity usuario = new UsuarioEntity();
@@ -2495,6 +2900,127 @@ public class SistemaServiceTest {
     } // APROBADO
 
     @Test
+    public void testEvaluateCreditoSegundaVivienda22() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(1);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("SEGUNDA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(130000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for (int i = 0; i < usuario.getNotifications().size(); i++) {
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNotNull(result);
+    } // APROBADO CON DOCUMENTOS JUSTOS
+
+    @Test
+    public void testEvaluateCreditoSegundaVivienda222() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(1);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("SEGUNDA VIVIENDA");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(130000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.04); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0033);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for (int i = 0; i < usuario.getNotifications().size(); i++) {
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNull(result);
+    } // FALTA DE ARCHIVOS
+
+    @Test
     public void testEvaluateCreditoSegundaVivienda21() {
         // Arrange
         Long userId = 1L;
@@ -2829,6 +3355,127 @@ public class SistemaServiceTest {
     } // APROBADO
 
     @Test
+    public void testEvaluateCreditoPropiedadComercial3() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(1);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PROPIEDAD COMERCIAL");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(110000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.06); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0005);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for (int i = 0; i < usuario.getNotifications().size(); i++) {
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNotNull(result);
+    } // APROBADO CON DOCUMENTOS JUSTOS
+
+    @Test
+    public void testEvaluateCreditoPropiedadComercial31() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(1);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PROPIEDAD COMERCIAL");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(110000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.06); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0005);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for (int i = 0; i < usuario.getNotifications().size(); i++) {
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNull(result);
+    } // FALTA DE ARCHIVOS
+
+    @Test
     public void testEvaluateCreditoPropiedadComercial21() {
         // Arrange
         Long userId = 1L;
@@ -2962,7 +3609,133 @@ public class SistemaServiceTest {
         assertNotNull(result);
     } // RETIRO AL FINAL
 
+    @Test
+    public void testEvaluateCreditoPropiedadComercial23() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
 
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(1);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PROPIEDAD COMERCIAL");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(110000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.06); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0005);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(null);
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for (int i = 0; i < usuario.getNotifications().size(); i++) {
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNull(result);
+    } // DICOM == NULL
+
+    @Test
+    public void testEvaluateCreditoPropiedadComercial24() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(1);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("PROPIEDAD COMERCIAL");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(110000);
+        newSolicitud.setPlazo(20);
+        newSolicitud.setIntanu(0.06); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0005);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setHistorialCrediticio(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEscrituraPrimeraVivienda(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPlanNegocios(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setEstadosFinancieros(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for (int i = 0; i < usuario.getNotifications().size(); i++) {
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNull(result);
+    } // DICOM == LONGITUD = 0
     //---------------------------------------------------------------------------//
     @Test
     public void testEvaluateCreditoRemodelacion() {
@@ -3025,7 +3798,7 @@ public class SistemaServiceTest {
         System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
-    }
+    } // ERROR-1
 
     @Test
     public void testEvaluateCreditoRemodelacion2() {
@@ -3088,7 +3861,7 @@ public class SistemaServiceTest {
         System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
-    }
+    } // ERROR-1, 2, 3.1 Y 3.2
 
     @Test
     public void testEvaluateCreditoRemodelacion3() {
@@ -3096,7 +3869,7 @@ public class SistemaServiceTest {
         Long userId = 1L;
         UsuarioEntity usuario = new UsuarioEntity();
         List<AhorrosEntity> ahorros = new ArrayList<>();
-        for (int i = 1; i <= 10; i++) {
+        for (int i = 1; i <= 12; i++) {
             AhorrosEntity ahorro = new AhorrosEntity();
             ahorro.setTransaccion(500000 * i);
             ahorro.setTipo("DEPOSITO");
@@ -3152,7 +3925,126 @@ public class SistemaServiceTest {
         System.out.println("-------------------------------------------------------------------------------------------------");
         // Assert
         assertNotNull(result);
-    }
+    } // APROBADO
+
+    @Test
+    public void testEvaluateCreditoRemodelacion31() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(1);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("REMODELACION");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(90000);
+        newSolicitud.setPlazo(15);
+        newSolicitud.setIntanu(0.05); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0004);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setPresupuestoRemodelacion(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for (int i = 0; i < usuario.getNotifications().size(); i++) {
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNotNull(result);
+    } // APROBADO CON DOCUMENTOS JUSTOS
+
+    @Test
+    public void testEvaluateCreditoRemodelacion32() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        List<AhorrosEntity> ahorros = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            AhorrosEntity ahorro = new AhorrosEntity();
+            ahorro.setTransaccion(500000 * i);
+            ahorro.setTipo("DEPOSITO");
+            ahorros.add(ahorro);
+        }
+        List<CreditoEntity> creditos = null;
+
+        usuario.setRut("12345678-9");
+        usuario.setName("John Doe");
+        usuario.setAge(30);
+        usuario.setWorkage(5);
+        usuario.setHouses(1);
+        usuario.setValorpropiedad(200000);
+        usuario.setIngresos(5000);
+        usuario.setSumadeuda(2000);
+        usuario.setObjective("REMODELACION");
+        usuario.setIndependiente("ASALARIADO");
+        usuario.setAhorros(ahorros);
+        usuario.setCreditos(creditos);
+
+        when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuario);
+
+        CreditoEntity newSolicitud = new CreditoEntity();
+        newSolicitud.setMontop(90000);
+        newSolicitud.setPlazo(15);
+        newSolicitud.setIntanu(0.05); // Tasa de interés ajustada
+        newSolicitud.setIntmen(0.0004);
+        newSolicitud.setSegudesg(200);
+        newSolicitud.setSeguince(150);
+        newSolicitud.setComiad(50);
+        newSolicitud.setComprobanteIngresos(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setCertificadoAvaluo(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setDicom(new byte[]{'%', 'P', 'D', 'F', 1, 2, 3, 4});
+        newSolicitud.setState("PENDIENTE");
+
+        usuario.setSolicitud(newSolicitud);
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(newSolicitud);
+
+        // Act
+        when(usuarioService.obtenerValorPositivoMasPequeno(ahorros)).thenReturn(500000); // SIEMPRE Y CUANDO LA FUNCIÓN RETORNE
+        Map<String, Object> result = sistemaService.evaluateCredito(userId);
+
+        for (int i = 0; i < usuario.getNotifications().size(); i++) {
+            System.out.println("NOTIFICATIONS: " + usuario.getNotifications().get(i));
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        // Assert
+        assertNull(result);
+    } // FALTA DE DOCUMENTOS
     //---------------------------------------------------------------------------//
     //---------------------------------------------------------------------------//
     @Test
@@ -3387,7 +4279,7 @@ public class SistemaServiceTest {
 
         // Verificar resultados
         assertEquals(0, result);
-        assertEquals("EN REVISIÓN INICIAL", solicitud.getState());
+        assertEquals("EN REVISION INICIAL", solicitud.getState());
         verify(creditoRepository, times(1)).save(any(CreditoEntity.class));
         verify(usuarioRepository, times(1)).save(any(UsuarioEntity.class));
     }
@@ -3407,5 +4299,211 @@ public class SistemaServiceTest {
         // Verificar resultados
         assertEquals(-1, result);
 
+    }
+
+    @Test
+    public void testUpdateStateCaso1() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        CreditoEntity solicitud = new CreditoEntity();
+        usuario.setSolicitud(solicitud);
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+
+        // Act
+        int result = sistemaService.updateState(userId, 1);
+
+        // Assert
+        assertEquals(0, result);
+        assertEquals("EN REVISION INICIAL", solicitud.getState());
+        assertTrue(usuario.getNotifications().contains("ESTADO DE SOLICITUD ACTUALIZADO: SU SOLICITUD SE ENCUENTRA EN EL ESTADO: EN REVISIÓN INICIAL"));
+        verify(creditoRepository, times(1)).save(any(CreditoEntity.class));
+        verify(usuarioRepository, times(1)).save(any(UsuarioEntity.class));
+    }
+
+    @Test
+    public void testUpdateStateCaso2() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        CreditoEntity solicitud = new CreditoEntity();
+        usuario.setSolicitud(solicitud);
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+
+        // Act
+        int result = sistemaService.updateState(userId, 2);
+
+        // Assert
+        assertEquals(0, result);
+        assertEquals("PENDIENTE DE DOCUMENTACION", solicitud.getState());
+        assertTrue(usuario.getNotifications().contains("ESTADO DE SOLICITUD ACTUALIZADO: SU SOLICITUD SE ENCUENTRA EN EL ESTADO: PENDIENTE DE DOCUMENTACIÓN"));
+        verify(creditoRepository, times(1)).save(any(CreditoEntity.class));
+        verify(usuarioRepository, times(1)).save(any(UsuarioEntity.class));
+    }
+
+    @Test
+    public void testUpdateStateCaso3() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        CreditoEntity solicitud = new CreditoEntity();
+        usuario.setSolicitud(solicitud);
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+
+        // Act
+        int result = sistemaService.updateState(userId, 3);
+
+        // Assert
+        assertEquals(0, result);
+        assertEquals("EN EVALUACION", solicitud.getState());
+        assertTrue(usuario.getNotifications().contains("ESTADO DE SOLICITUD ACTUALIZADO: SU SOLICITUD SE ENCUENTRA EN EL ESTADO: EN EVALUACIÓN"));
+        verify(creditoRepository, times(1)).save(any(CreditoEntity.class));
+        verify(usuarioRepository, times(1)).save(any(UsuarioEntity.class));
+    }
+
+    @Test
+    public void testUpdateStateCaso4() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        CreditoEntity solicitud = new CreditoEntity();
+        usuario.setSolicitud(solicitud);
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+
+        // Act
+        int result = sistemaService.updateState(userId, 4);
+
+        // Assert
+        assertEquals(0, result);
+        assertEquals("PRE-APROBADA", solicitud.getState());
+        assertTrue(usuario.getNotifications().contains("ESTADO DE SOLICITUD ACTUALIZADO: SU SOLICITUD SE ENCUENTRA EN EL ESTADO: PRE-APROBADA"));
+        verify(creditoRepository, times(1)).save(any(CreditoEntity.class));
+        verify(usuarioRepository, times(1)).save(any(UsuarioEntity.class));
+    }
+
+    @Test
+    public void testUpdateStateCaso5() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        CreditoEntity solicitud = new CreditoEntity();
+        usuario.setSolicitud(solicitud);
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+
+        // Act
+        int result = sistemaService.updateState(userId, 5);
+
+        // Assert
+        assertEquals(0, result);
+        assertEquals("EN APROBACION FINAL", solicitud.getState());
+        assertTrue(usuario.getNotifications().contains("ESTADO DE SOLICITUD ACTUALIZADO: SU SOLICITUD SE ENCUENTRA EN EL ESTADO: EN APROBACIÓN FINAL"));
+        verify(creditoRepository, times(1)).save(any(CreditoEntity.class));
+        verify(usuarioRepository, times(1)).save(any(UsuarioEntity.class));
+    }
+
+    @Test
+    public void testUpdateStateCaso6() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        CreditoEntity solicitud = new CreditoEntity();
+        usuario.setSolicitud(solicitud);
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+
+        // Act
+        int result = sistemaService.updateState(userId, 6);
+
+        // Assert
+        assertEquals(0, result);
+        assertEquals("APROBADA", solicitud.getState());
+        assertTrue(usuario.getNotifications().contains("ESTADO DE SOLICITUD ACTUALIZADO: SU SOLICITUD SE ENCUENTRA EN EL ESTADO: APROBADA"));
+        verify(creditoRepository, times(1)).save(any(CreditoEntity.class));
+        verify(usuarioRepository, times(1)).save(any(UsuarioEntity.class));
+    }
+
+    @Test
+    public void testUpdateStateCaso7() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        CreditoEntity solicitud = new CreditoEntity();
+        usuario.setSolicitud(solicitud);
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+
+        // Act
+        int result = sistemaService.updateState(userId, 7);
+
+        // Assert
+        assertEquals(0, result);
+        assertEquals("RECHAZADA", solicitud.getState());
+        assertTrue(usuario.getNotifications().contains("ESTADO DE SOLICITUD ACTUALIZADO: SU SOLICITUD SE ENCUENTRA EN EL ESTADO: RECHAZADA"));
+        verify(creditoRepository, times(1)).save(any(CreditoEntity.class));
+        verify(usuarioRepository, times(1)).save(any(UsuarioEntity.class));
+    }
+
+    @Test
+    public void testUpdateStateCaso8() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        CreditoEntity solicitud = new CreditoEntity();
+        usuario.setSolicitud(solicitud);
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+
+        // Act
+        int result = sistemaService.updateState(userId, 8);
+
+        // Assert
+        assertEquals(0, result);
+        assertEquals("CANCELADA POR EL CLIENTE", solicitud.getState());
+        assertTrue(usuario.getNotifications().contains("ESTADO DE SOLICITUD ACTUALIZADO: SU SOLICITUD SE ENCUENTRA EN EL ESTADO: CANCELADA POR EL CLIENTE"));
+        verify(creditoRepository, times(1)).save(any(CreditoEntity.class));
+        verify(usuarioRepository, times(1)).save(any(UsuarioEntity.class));
+    }
+    /*
+    @Test
+    public void testUpdateStateToDesemboloso() {
+        // Configurar el usuario y la solicitud
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        usuario.setId(userId);
+        CreditoEntity solicitud = new CreditoEntity();
+        solicitud.setState("PENDIENTE");
+        usuario.setSolicitud(solicitud);
+
+        // Configurar los mocks
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+        when(creditoRepository.save(any(CreditoEntity.class))).thenReturn(solicitud);
+
+        // Llamar al método a probar
+        sistemaService.updateState(userId, 9);
+
+        // Verificar que se llamaron a los métodos correctos
+        verify(usuarioRepository, times(1)).findById(userId);
+        verify(creditoRepository, times(2)).save(any(CreditoEntity.class));
+        verify(usuarioRepository, times(1)).save(any(UsuarioEntity.class));
+
+        // Verificar el estado de la solicitud
+        assertEquals("EN DESEMBOLOSO", solicitud.getState());
+    }
+    */
+    @Test
+    public void testUpdateStateCaso10() {
+        // Arrange
+        Long userId = 1L;
+        UsuarioEntity usuario = new UsuarioEntity();
+        CreditoEntity solicitud = new CreditoEntity();
+        usuario.setSolicitud(solicitud);
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
+
+        // Act
+        int result = sistemaService.updateState(userId, 10);
+
+        // Assert
+        assertEquals(0, result);
+        assertEquals("PENDIENTE", solicitud.getState());
+        assertTrue(usuario.getNotifications().contains("ESTADO DE SOLICITUD ACTUALIZADO: SU SOLICITUD SE ENCUENTRA EN EL ESTADO: PENDIENTE"));
+        verify(creditoRepository, times(1)).save(any(CreditoEntity.class));
+        verify(usuarioRepository, times(1)).save(any(UsuarioEntity.class));
     }
 }
