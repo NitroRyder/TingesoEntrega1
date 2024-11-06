@@ -121,6 +121,7 @@ public class UsuarioController {
     }
     //------------------------------------------------------------------------------------------//
     //----------------[P1]- FUNCIONES DE CALCULO DE CRÉDITO HIPOTECARIO-----------------//
+    // + SIMULACIÓN DEL CALCULO DE MONTO MENSUAL:
     @GetMapping("/calcularMontoMensual")
     public ResponseEntity<Double> calcularMontoMensual(@RequestParam("rut") String rut,
         @RequestParam("P") double P,
@@ -147,6 +148,7 @@ public class UsuarioController {
         }
     }
     //-----------------------[P2]- FUNCIONES DE REGISTRO DE USUARIO-------------------------//
+    // + REGISTRO DE USUARIOS EN BASE DE DATOS:
     @PostMapping("/register")
     public ResponseEntity<?> registerUsuario(@RequestBody UsuarioEntity usuario) {
         if(usuarioRepository.existsByRut(usuario.getRut())) {
@@ -187,6 +189,7 @@ public class UsuarioController {
         }
     }
     //----------------[P3]- FUNCIONES DE SOLICITÚD DE CRÉDITO-----------------//
+    // + SOLICITUD DE CRÉDITO HIPOTECARIO PARA UN USUARIO POR ID:
     @PostMapping("/solicitarCredito")
     public ResponseEntity<?> createSolicitud(
             @RequestParam("userId") Long userId,
@@ -228,6 +231,7 @@ public class UsuarioController {
         }
     }
     //----------------[P4]- FUNCIONES DE APROBACIÓN DE CRÉDITO-----------------//
+    // + APROBACIÓN DE CRÉDITO HIPOTECARIO PARA UN USUARIO POR ID:
     @PostMapping("/aprobarCredito")
     public ResponseEntity<?> aprobarCredito(@RequestBody Map<String, Object> body) {
         Long userId = ((Number) body.get("userId")).longValue();
@@ -253,6 +257,7 @@ public class UsuarioController {
         }
     }
     //-----------------------[P5]- FUNCIONES DE SEGUIMENTO ---------------------------------------//
+    // + SEGUIMIENTO DE CRÉDITO HIPOTECARIO PARA UN USUARIO POR ID:
     @PostMapping("/seguimiento")
     public ResponseEntity<?> seguimiento(@RequestBody Map<String, Object> body) {
         Long userId = ((Number) body.get("userId")).longValue();
@@ -267,6 +272,7 @@ public class UsuarioController {
         }
     }
     //----------------[P6]- FUNCIONES DE CALCULO DE COSTOS TOTALES-----------------//
+    // + CALCULO DE COSTOS TOTALES PARA UN USUARIO POR ID:
     @PostMapping("/calcularCostosTotales")
     public ResponseEntity<?> calcularCostosTotales(@RequestBody Map<String, Object> body) {
         Long userId = ((Number) body.get("userId")).longValue();
@@ -281,6 +287,7 @@ public class UsuarioController {
         }
     }
     //-----------------------[EXTRA]- FUNCIONES DE NOTIFICACIONES-------------------------------//
+    // + OBTENER NOTIFICACIONES PARA UN USUARIO POR ID:
     @PostMapping("/notificaciones")
     public ResponseEntity<?> getNotificaciones(@RequestBody Map<String, Object> body) {
         Long userId = ((Number) body.get("userId")).longValue();
@@ -295,6 +302,7 @@ public class UsuarioController {
         }
     }
     //-----------------------[EXTRA]- FUNCIONES DE ACTUALIZACIÓN DE ESTADOS-----------------//
+    // + ACTUALIZAR ESTADO DE USUARIO POR ID:
     @PostMapping("/updateState")
     //updateState ingresa id y un int state
     public ResponseEntity<?> updateState(@RequestBody Map<String, Object> body) {

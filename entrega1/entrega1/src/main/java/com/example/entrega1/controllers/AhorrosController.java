@@ -25,7 +25,7 @@ public class AhorrosController {
     //-------------------------------------------------------------------------------------------//
     //-----------------------------------[GETERS]----------------------------------------------//
     // * OBTENER TODOS LOS AHORROS
-    @GetMapping("/all") // -> VER SI NECESITA CAMBIO, ->  "/"
+    @GetMapping("/all")
     public ResponseEntity<List<AhorrosEntity>> listAllAhorros() {
         List<AhorrosEntity> ahorros = ahorrosService.getAhorros();
         return ResponseEntity.ok(ahorros);
