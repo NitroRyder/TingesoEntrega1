@@ -30,7 +30,7 @@ public class CreditoService {
         return creditoRepository.save(credito);
     }
     //------------------------------------------------------------------//
-    // * ACTUALIZAR CRÉDITO
+    // * ACTUALIZAR CRÉDITO -> RECIVE UN CRÉDITO Y LO ACTUALIZA
     public CreditoEntity updateCredito(CreditoEntity credito) {
         return creditoRepository.save(credito);
     }
@@ -45,7 +45,7 @@ public class CreditoService {
         }
     }
     //------------------------------------------------------------------//
-    // * ELIMINAR TODOS LOS CRÉDITOS
+    // * ELIMINAR TODOS LOS CRÉDITOS -> ELIMINA TODOS LOS CRÉDITOS
     public void deleteAllCreditos() {
         creditoRepository.deleteAll();
     }
@@ -56,7 +56,7 @@ public class CreditoService {
         return creditoRepository.findById(id).get();
     }
     //--------------------------------------[AGREGAR]--------------------------------------------//
-    // AGREGAR CRÉDITO A USUARIO POR SU RUT
+    // AGREGAR CRÉDITO A USUARIO POR SU RUT -> REGRESA EL CRÉDITO AGREGADO O EXCEPCIÓN
     public CreditoEntity addCreditoToUsuario(CreditoEntity credito, String rut) {
         if (rut == null) {
             throw new RuntimeException("RUT NO PUEDE SER NULO");

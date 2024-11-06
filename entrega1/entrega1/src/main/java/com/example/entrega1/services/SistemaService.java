@@ -34,7 +34,8 @@ public class SistemaService {
     private CreditoRepository creditoRepository;
     @Autowired
     private AhorrosService ahorrosService;
-    //----------------[P1]- FUNCIONES DE CALCULO DE CRÉDITO HIPOTECARIO-----------------// -------------> REVIZAR
+    //----------------[P1]- FUNCIONES DE CALCULO DE CRÉDITO HIPOTECARIO-----------------//
+    // + SIMULACIÓN DE CRÉDITO HIPOTECARIO POR VALORES INGRESADOS:
     public double Credito_Hipotecario(String rut, double P, double r, double n, double V) {
         // P = MONTO DEL PRESTAMO
         // r = TASA DE INTERES ANUAL
@@ -93,6 +94,7 @@ public class SistemaService {
         }
     }
     //-----------------------[P2]- FUNCIONES DE REGISTRO DE USUARIO-------------------------//
+    // + REGISTRO DE USUARIO POR VALORES INGRESADOS:
     public UsuarioEntity registerUsuario(String rut, String name, int age, int workage, int houses, int valorpropiedad, int ingresos, int sumadeuda, String objective, String independiente, List<AhorrosEntity> ahorros, List<CreditoEntity> creditos) {
         // Eliminar los puntos del RUT
         String cleanedRut = rut.replace(".", "");
@@ -138,18 +140,19 @@ public class SistemaService {
         //return usuarioRepository.findById(savedUsuario.getId()).orElse(null);
     }
     //-----------------------[P3]- FUNCIONES DE CREACIÓN  DE SOLICITUD DE CRÉDITO-------------------------//
+    // + CREACIÓN DE SOLICITUD DE CRÉDITO POR VALORES INGRESADOS BAJO ID DE USUARIO INGRESADO:
     public CreditoEntity createSolicitud(Long userId, double montop, int plazo, double intanu, double intmen, double segudesg, double seguince, double comiad, byte[] comprobanteIngresos, byte[] certificadoAvaluo, byte[] historialCrediticio, byte[] escrituraPrimeraVivienda, byte[] planNegocios, byte[] estadosFinancieros, byte[] presupuestoRemodelacion, byte[] dicom) {
 
         UsuarioEntity usuario = usuarioRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("ERROR: USUARIO NO ENCONTRADO"));
         //-------------------------------------------------------------------------//
-        // Eliminar la solicitud existente si hay una
+        // ELIMINACIÓN DE SOLICITUD, SI ES QUE HAY UNA
         if (usuario.getSolicitud() != null) {
             CreditoEntity solicitudExistente = usuario.getSolicitud();
             usuario.setSolicitud(null);
             creditoRepository.delete(solicitudExistente);
         }
         //-------------------------------------------------------------------------//
-        // Crear la nueva solicitud
+        // CREACIÓN DE NUEVA SOLICITUD
         CreditoEntity solicitud = new CreditoEntity();
         solicitud.setMontop(montop);
         solicitud.setPlazo(plazo);
@@ -168,17 +171,17 @@ public class SistemaService {
         solicitud.setDicom(dicom);
         solicitud.setState("PENDIENTE");
 
-        // Asociar la nueva solicitud al usuario
+        // ASOCIACIÓN DE SOLICITUD CON USUARIO
         usuario.setSolicitud(solicitud);
 
-        // Guardar la nueva solicitud
+        // GUARDADO DE NUEVA SOLICITUD
         CreditoEntity savedSolicitud = creditoRepository.save(solicitud);
 
         return savedSolicitud;
         //return creditoRepository.findById(savedSolicitud.getId()).orElse(null);
     }
     //-----------------------[P4]- EVALUACIÓN DE CRÉDITO-------------------------//
-    // VER QUE EL RUT ESTÉ GUARDADO EN LA BASE DE DATOS Y QUE TENGA UNA "solicitud" EN ESTADO "PENDIENTE"
+    // + REVICIÓN DE SOLCITUD CREADA Y ENTREGA DE ARCHIVOS EN CASO DE PASAR LAS PRUEBAS:
     public Map<String, Object> evaluateCredito(Long userId) {
 
         UsuarioEntity usuario = usuarioRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("ERROR: USUARIO NO ENCONTRADO"));
@@ -216,6 +219,7 @@ public class SistemaService {
             return null;
         }
         //-------------------------------------------------------------------------//
+        // OBTENCIÓN DE DATOS DE LA SOLICITUD
         double montop = solicitud.getMontop();        // MONTO DEL PRÉSTAMO
         int plazo = solicitud.getPlazo();                      // PLAZO DEL PRÉSTAMO EN AÑOS
         double intanu = solicitud.getIntanu();            // TASA DE INTERES ANUAL
@@ -339,8 +343,8 @@ public class SistemaService {
         } else {
             //System.out.println("LA SUMA DE DEUDAS ES MENOR AL 50% DE LOS INGRESOS");
         }
-        // [R5]--------------------------------------------------------------------// INFRESAR VALOR DE PROPIEDAD
-        //-------------------------------------------------------------------------//
+        // [R5]--------------------------------------------------------------------//
+        // REVICIÓN DEL TIPO DE CRÉDITO SOLICITADO, SI NO COINSIDE, RECHAZA
         if (plazo <= 30 && 0.035 <= intanu && intanu <= 0.05 && montop <= usuario.getValorpropiedad() * 0.8 &&
                 solicitud.getComprobanteIngresos() != null && solicitud.getComprobanteIngresos().length > 0 &&
                 solicitud.getCertificadoAvaluo() != null && solicitud.getCertificadoAvaluo().length > 0 &&
@@ -382,6 +386,7 @@ public class SistemaService {
             return null;
         }
         // [R6]--------------------------------------------------------------------//
+        // RECHAZO DE LA SOLICITUD SI EL SOLICITANTE ESTÁ MUY CERCANO A LA EDAD MÁXIMA PERMITIDA
         if (usuario.getAge() + plazo > 75 || (usuario.getAge() + plazo >= 70 && usuario.getAge() + plazo <= 75)) {
             // MODIFICAR EL ESTADO DE LA SOLICITUD A "RECHAZADA"
             solicitud.setState("RECHAZADA");
@@ -401,8 +406,10 @@ public class SistemaService {
         // [R7]--------------------------------------------------------------------//
         int errores = 5; // CANTIDAD DE ERRORES PERMITIDOS PARA OTORGAR UN ESTADO A LA SOLICITUD
         // [R7]-----[R71]---------------------------------------------------------//--------------------------------------------------------------------//
-        // SALARIO MÍNIMO REQUERIDO
+        // + VERIFICO SI EL SALDO POSITIVO MÁS PEQUEÑO MAYOR O IGUAL AL 10% DEL MONTO DEL PRÉSTAMO:
+        // OBTENGO LOS AHORROS DEL USUARIO
         List<AhorrosEntity> ahorros = usuario.getAhorros();
+        // OBTENGO EL VALOR POSITIVO MÁS PEQUEÑO
         int valorPositivoMasPequeno = usuarioService.obtenerValorPositivoMasPequeno(ahorros);
         if(valorPositivoMasPequeno >= Math.round(usuario.getSolicitud().getMontop()*0.1)){
             //System.out.println("SALDO POSITIVO MÁS PEQUEÑO MAYOR O IGUAL AL 10% DEL MONTO DEL PRÉSTAMO");
@@ -415,9 +422,9 @@ public class SistemaService {
         }
         // [R7]-----[R72]---------------------------------------------------------//--------------------------------------------------------------------//
         // HISTORIAL DE AHORRO CONSISTENTE
-        //El cliente debe haber mantenido un saldo positivo en su cuenta de ahorros por lo menos durante los últimos 12 meses, sin realizar retiros significativos (> 50% del saldo).
+        // VER QUE EL CLIENTE TENGA UN SALDO POSITIVO EN SU CUENTA DE AHORROS POR LO MENOS DURANTE LOS ÚLTIMOS 12 MESES, SIN REALIZAR RETIROS SIGNIFICATIVOS (> 50% DEL SALDO).
         int bandera = 0;            // VERIFICA SI HAY ALGÚN RETIRO MAYOR A 50% DEL SALDO
-        double saldo = 0;          // SALDO DE LA CUENTA DE AHORROS
+        double saldo = 0;          // SALDO DE LA CUENTA DE AHORROS -> SUMA DE TODAS LAS TRANSACCIONES
         double acumulado = 0; // SALDO ACUMUADO DE LA CUENTA DE AHORROS
         double cantidad = 0;    // CANTIDAD DE MESES DE AHORRO / CADA TRANSACCIÓN ES UN MES
         double analisis = 0;      // REPRESENTA LOS ULTIMOS 12 MESES
@@ -461,6 +468,7 @@ public class SistemaService {
             //System.out.println("HISTORIAL DE AHORRO CONSISTENTE");
         }
         // [R7]-----[R73]---------------------------------------------------------//--------------------------------------------------------------------//
+        // DEPOSITOS PERIODICOS CON FRECUENCIA MENSUAL O TRIMESTRAL:
         bandera = 0;            // REUTILIZACIÓN, AHORA SI ES 1, ES PORQUE LOS DEPOSITOS NO RESPETAN EL SER MENSUALES O TRIMESTRALES
         int mensual = 0;      // VERIFICADOR DE DEPOSITOS MENSUALES
         int trimestral = 0;    // VERIFICADOR DE DEPOSITOS TRIMESTRALES
@@ -502,6 +510,7 @@ public class SistemaService {
             //System.out.println("DEPOSITOS MENSUALES Y TRIMESTRALES ACEPTADOS Y SUMAN AL MENOS EL 5% DE LOS INGRESOS MENSUALES");
         }
         // [R7]-----[R74]---------------------------------------------------------//--------------------------------------------------------------------//
+        // RELACIÓN ENTRE AÑOS DE ANTIUGEDAD Y SALDO ACUMULADO RESPECTO AL MONTO DEL PRÉSTAMO
         if (cantidad < 24 && acumulado >= usuario.getSolicitud().getMontop()*0.2 ){
             //System.out.println("CUENTA DE AHORROS MENOR A 2 AÑOS Y CON UN SALDO ACUMULADO AL MENOS DE 20% DEL PRESTAMO");
         }else if(cantidad >= 24 && acumulado >= usuario.getSolicitud().getMontop()*0.1){
@@ -515,6 +524,7 @@ public class SistemaService {
             errores--; // CHEQUEO NEGATIVO
         }
         // [R7]-----[R75]---------------------------------------------------------//--------------------------------------------------------------------//
+        // RECHAZO DE LA SOLICITUD SI HAY RETIROS MAYORES AL 30% DEL SALDO EN LOS ULTIMOS 6 MESES
         bandera = 0;  // REUTILIZACIÓN, AHORA SI ES 1 O MAYOR, ES PORQUE HAY UN RETIRO MAYOR AL 30% DEL SALDO EN LOS ULTIMOS 6 MESES
         saldo = 0;       // REUTILIZACIÓN, SALDO DE LA CUENTA DE AHORROS DE LOS ULTIMOS 6 MESES
         analisis = cantidad; // REPRESENTA LOS ULTIMOS 12 MESES
@@ -541,6 +551,7 @@ public class SistemaService {
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // [R7]-----[CHEQUEO DE EVALUACIONES]----------------------------//--------------------------------------------------------------------//
+        // CONCLUCIÓN DE ANALISIS DE HISTORIAL DE AHORROS:
         //System.out.println("FINALIZACIÓN DE LA EVALUACIÓN DE CRÉDITO");
         //System.out.println("ERRORES ENCONTRADOS: " + errores);
         if (errores == 5) {
@@ -586,6 +597,7 @@ public class SistemaService {
         }
     }
     //-----------------------[P5]- FUNCIONES DE SEGUIMENTO ---------------------------------------//
+    // + SEQUIMIENTO DEL ESTADO DE LA SOLICITUD POR ID DEL USUARIO:
     public CreditoEntity followCredito(Long userId) {
         UsuarioEntity usuario = usuarioRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("ERROR: USUARIO NO ENCONTRADO"));
         CreditoEntity solicitud = usuario.getSolicitud(); // OBTENGO LA SOLICITUD DEL USUARIO
@@ -594,6 +606,7 @@ public class SistemaService {
         return solicitud;
     }
     //-----------------------[P6]- FUNCIONES DE CALCULO DE COSTOS TOTALES-------------------//
+    // + CALCULO DE COSTOS TOTALES DE LA SOLICITUD DE CRÉDITO POR ID DEL USUARIO:
     public List<Double> calcularCostosTotales(Long userId){
         UsuarioEntity usuario = usuarioRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("ERROR: USUARIO NO ENCONTRADO"));
         CreditoEntity solicitud = usuario.getSolicitud(); // OBTENGO LA SOLICITUD DEL USUARIO
@@ -658,12 +671,14 @@ public class SistemaService {
         return resultados;
     }
     //-----------------------[EXTRA]- FUNCIONES DE NOTIFICACIONES-------------------------------//
+    // + OBTENER NOTIFICACIONES DEL USUARIO POR ID DEL USUARIO:
     public List<String> getNotifications(Long userId) {
         UsuarioEntity usuario = usuarioRepository.findById(userId).orElseThrow(null);
         List<String> notifications = usuario.getNotifications();
         return notifications;
     }
     //-----------------------[EXTRA]- FUNCIONES DE ACTUALIZACIÓN DE ESTADOS-----------------//
+    // + ACTUALIZAR ESTADO DE LA SOLICITUD POR ID DEL USUARIO: -> PARA EL EJECUTIVO
     public int updateState(Long userId, int state) {
         UsuarioEntity usuario = usuarioRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("ERROR: USUARIO NO ENCONTRADO"));
         CreditoEntity solicitud = usuario.getSolicitud(); // OBTENGO LA SOLICITUD DEL USUARIO

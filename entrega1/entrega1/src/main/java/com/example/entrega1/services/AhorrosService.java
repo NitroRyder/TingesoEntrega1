@@ -25,18 +25,22 @@ public class AhorrosService {
         return (ArrayList<AhorrosEntity>) ahorrosRepository.findAll();
     }
     //------------------------------------------------------------------//
+    // * OBTENER AHORRO POR ID -> ENTREGA UN AHORRO -> REQUIERE DE UN CICLO FOR PARA OBTENER LISTA AHORROS
     public AhorrosEntity getAhorrosById(Long id) {
         return ahorrosRepository.findById(id).get();
     }
     //------------------------------------------------------------------//
+    // * GUARDAR AHORRO -> ENTREGA UN AHORRO
     public AhorrosEntity saveAhorros(AhorrosEntity ahorros) {
         return ahorrosRepository.save(ahorros);
     }
     //------------------------------------------------------------------//
+    // * ACTUALIZAR AHORRO -> ENTREGA UN AHORRO
     public AhorrosEntity updateAhorros(AhorrosEntity ahorros) {
         return ahorrosRepository.save(ahorros);
     }
-
+    //------------------------------------------------------------------//
+    // * ELIMINAR AHORRO -> ENTREGA UN MAPA CON EL VALOR DE LA ELIMINACIÓN
     public Map<String, Boolean> deleteAhorros(Long id) {
         ahorrosRepository.deleteById(id);
         return Map.of("deleted", true);

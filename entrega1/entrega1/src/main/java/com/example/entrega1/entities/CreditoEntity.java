@@ -77,7 +77,7 @@ public class CreditoEntity {
     //-----------------------------------------------------------------------------------------//
     //-----------------------------------------------------------------------------------------//
     @Column(name = "state")
-    private String state;    // VALOR DE ESTADO DE PRÉSTAMO -> SON 3
+    private String state;    // VALOR DE ESTADO DE PRÉSTAMO -> SON 10
     //-----------------------------------------------------------------------------------------//
     // LA RELACIÓN DE CRÉDITO A USUARIO ES DE MUCHOS A UNO
     @JsonBackReference

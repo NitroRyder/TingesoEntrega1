@@ -23,12 +23,11 @@ public class AhorrosEntity {
     @Column(unique = true, nullable = false)
     private Long id;
     //-----------------------------------------------------------------------------------------//
-    // FECHA() - TRANSACCIÓN(+ O -) O tipo de transacción -> para el filtro
     @Column(name = "transaccion", nullable = false)
     private int transaccion;    // VALOR DE TRANSACCIÓN
     //-----------------------------------------------------------------------------------------//
     @Column(name = "tipo", nullable = false)
-    private String tipo;    // TIPO DE TRANSACCIÓN
+    private String tipo;    // TIPO DE TRANSACCIÓN: DEPOSITO | PAGO | TRANSFERENCIA | RETIRO
     //-----------------------------------------------------------------------------------------//
     @JsonBackReference
     @ManyToOne

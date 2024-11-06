@@ -12,6 +12,7 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Long> { 
     // -> ENTREGA LA TABLA COMPLETA DE CLIENTE SOLICITADO
     // * ENCONTRAR POR RUT
     List<UsuarioEntity> findByRut(String rut);
+    //------------------------------------------------------------------//
     // * ENCONTRAR POR OBJETIVO
     List<UsuarioEntity> findByObjective(String objective);
     //--------------------------------[BUSQUEDA POR CONDICIÓN]---------------------------------//
@@ -19,6 +20,7 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Long> { 
     // + OBTENER TODOS LOS RUT´S
     @Query("SELECT c.rut FROM UsuarioEntity c WHERE c.rut IS NOT NULL")
     List<String> findAllRuts();
+    //------------------------------------------------------------------//
     // + OBTENER TODOS LOS OBJETIVOS
     @Query("SELECT c.objective FROM UsuarioEntity c WHERE c.objective IS NOT NULL")
     List<String> findAllObjectives();

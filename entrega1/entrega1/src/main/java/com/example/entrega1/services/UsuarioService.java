@@ -33,13 +33,13 @@ public class UsuarioService {
         return usuarioRepository.save(usuario);
     }
     //------------------------------------------------------------------//
-    // * ACTUALIZAR CLIENTE
+    // * ACTUALIZAR CLIENTE -> RECIVE UN CLIENTE Y LO ACTUALIZA
     public UsuarioEntity updateUsuario(Long id, int valorpropiedad, int ingresos, int sumadeuda, String objective) {
         UsuarioEntity usuario = usuarioRepository.findById(id).orElse(null);
         if(usuario == null) {
             return null;
         }
-        // seteo de valores ingresados
+        // SETEO DE VALORES INGRESADOS:
         usuario.setValorpropiedad(valorpropiedad);
         usuario.setIngresos(ingresos);
         usuario.setSumadeuda(sumadeuda);
@@ -48,7 +48,7 @@ public class UsuarioService {
         return usuarioRepository.save(usuario);
     }
     //------------------------------------------------------------------//
-    // * ELIMINAR CLIENTE -> SI HAY ALGÚN FALLO, ENTREGA EXCEPCIÓN
+    // * ELIMINAR CLIENTE POR ID -> SI HAY ALGÚN FALLO, ENTREGA EXCEPCIÓN
     public void deleteUsuario(Long id) throws Exception {
         try {
             usuarioRepository.deleteById(id);
@@ -58,13 +58,13 @@ public class UsuarioService {
         }
     }
     //------------------------------------------------------------------//
-    // * ELIMINAR TODOS LOS CLIENTES
+    // * ELIMINAR TODOS LOS CLIENTES -> ELIMINA TODOS LOS CLIENTES
     public void deleteAllUsuarios() {
         usuarioRepository.deleteAll();
     }
     //------------------------------[OPERACIONES CLIENTE]------------------------------------//
     //--------------------------------------[GETTERS]--------------------------------------------//
-    // + OBTENER TODOS LOS CLIENTES
+    // + OBTENER TODOS LOS CLIENTES -> ENTREGA UNA LISTA DE CLIENTES
     public Object getAllUsuarios() {
         return null;
     }
@@ -74,16 +74,17 @@ public class UsuarioService {
         return usuarioRepository.findById(id).get();
     }
     //------------------------------------------------------------------//
-    // + OBTENER CLIENTE POR RUT
+    // + OBTENER CLIENTE POR RUT -> REGRESA UNA LISTA DE CLIENTES -> [BUSCO EL VALOR 0 DE LA LISTA]
     public List<UsuarioEntity> getUsuarioByRut(String rut) {
         return usuarioRepository.findByRut(rut);
     }
     //------------------------------------------------------------------//
-    // + OBTENER CLIENTE POR OBJETIVO
+    // + OBTENER CLIENTE POR OBJETIVO -> REGRESA UNA LISTA DE CLIENTES -> [BUSCO EL VALOR 0 DE LA LISTA]
     public List<UsuarioEntity>  getUsuarioByObjective(String objective) {
         return usuarioRepository.findByObjective(objective);
     }
     //------------------------------[OPERACIONES AHORRO]------------------------------------//
+    // + OBTENER EL VALOR POSITIVO MAS CHICO DENTRO DE LA LISTA DE AHORROS DEL USUARIO
     public int obtenerValorPositivoMasPequeno(List<AhorrosEntity> ahorros) {
         int valorPositivoMasPequeno = Integer.MAX_VALUE;
         boolean foundPositive = false;
