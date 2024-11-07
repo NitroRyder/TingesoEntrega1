@@ -230,7 +230,7 @@ public class SistemaService {
         double meses = plazo * 12;                           // PASA DE AÑOS A MESES
         //-------------------------------------------------------------------------//
         // ANÁLISIS DE QUE LOS DATOS SOLICITADOS DEL CRÉDITO SEAN CORRECTOS// VALORES REDONDEADOS PARA COMPARAR
-        if (Math.round(intmen) == Math.round(intanu / 12.0 / 100.0)) {
+        if (Math.round(intmen) == Math.round(intanu / 12.0)) {
             //System.out.println("TASA DE INTERÉS MENSUAL CORRECTA");
         } else {
             // MODIFICAR EL ESTADO DE LA SOLICITUD A "RECHAZADA"
@@ -626,7 +626,7 @@ public class SistemaService {
         double meses = plazo * 12; // PASA DE AÑOS A MESES
         //-------------------------------------------------------------------------//
         // ANÁLISIS DE QUE LOS DATOS SOLICITADOS DEL CRÉDITO SEAN CORRECTOS// VALORES REDONDEADOS PARA COMPARAR
-        if (Math.round(intmen) == Math.round(intanu / 12.0 / 100.0)) {
+        if (Math.round(intmen) == Math.round(intanu / 12.0)) {
             //System.out.println("TASA DE INTERÉS MENSUAL CORRECTA");
         } else {
             // MODIFICAR EL ESTADO DE LA SOLICITUD A "RECHAZADA"
