@@ -660,7 +660,7 @@ public class SistemaService {
         resultados.add(comiadtotal);
         //System.out.println("COMISIÓN ADMINISTRATIVA: "+Math.round(comiadtotal));
         // [PASO 4]- CALCULO DE COSTO TOTAL DE PRESTAMO------------------//
-        double costomensual = cuota + segudesgtotal + comiadtotal;
+        double costomensual = cuota + segudesgtotal + seguince;
         double costototal = (costomensual * meses*12) + montop;
         resultados.add(costomensual);
         resultados.add(costototal);
