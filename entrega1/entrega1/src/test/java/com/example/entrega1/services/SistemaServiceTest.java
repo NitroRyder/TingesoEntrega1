@@ -54,28 +54,28 @@ public class SistemaServiceTest {
     public void testCreditoHipotecarioPrimeraVivienda() {
         SistemaService sistemaService = new SistemaService();
         double result = sistemaService.Credito_Hipotecario("12345678-9", 160000, 0.04, 30, 200000);
-        assertEquals(447.1238517090664, result, 0.01);
+        assertEquals(763.8644727447262, result, 0.01);
     }
 
     @Test
     public void testCreditoHipotecarioSegundaVivienda() {
         SistemaService sistemaService = new SistemaService();
         double result = sistemaService.Credito_Hipotecario("12345678-9", 100000, 0.06, 20, 150000);
-        assertEquals(419.18208310865845, result, 0.01);
+        assertEquals(716.4310584781729, result, 0.01);
     }
 
     @Test
     public void testCreditoHipotecarioPropiedadesComerciales() {
         SistemaService sistemaService = new SistemaService();
         double result = sistemaService.Credito_Hipotecario("12345678-9", 120000, 0.06, 25, 200000);
-        assertEquals(403.01749970020626, result, 0.01);
+        assertEquals(773.1616817826173, result, 0.01);
     }
 
     @Test
     public void testCreditoHipotecarioRemodelacion() {
         SistemaService sistemaService = new SistemaService();
         double result = sistemaService.Credito_Hipotecario("12345678-9", 100000, 0.06, 15, 200000);
-        assertEquals(558.0731942287285, result, 0.01);
+        assertEquals(843.8568280484624, result, 0.01);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class SistemaServiceTest {
         double n = 10; // Plazo del préstamo en años
         double V = 100000; // Valor actual de la propiedad
 
-        double expectedMonthlyPayment = P * (r / 12 / 100 * Math.pow(1 + r / 12 / 100, n * 12)) / (Math.pow(1 + r / 12 / 100, n * 12) - 1);
+        double expectedMonthlyPayment = P * (r / 12 * Math.pow(1 + r / 12, n * 12)) / (Math.pow(1 + r / 12, n * 12) - 1);
 
         double result = sistemaService.Credito_Hipotecario(rut, P, r, n, V);
 

@@ -48,7 +48,7 @@ public class SistemaService {
             //System.out.println("1.- Comprobante de ingresos");
             //System.out.println("2.- Certificado de avalúo");
             //System.out.println("3.- Historial crediticio");
-            r = r / 12 / 100; // PASA DE TASA ANUAL A MENSUAL
+            r = r / 12; // PASA DE TASA ANUAL A MENSUAL
             n = n * 12;        // PASA DE AÑOS A CANTIDAD DE PAGOS
             double M = P * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
             return M;
@@ -60,7 +60,7 @@ public class SistemaService {
             //System.out.println("2.- Certificado de avalúo");
             //System.out.println("3.- Escritura de la primera vivienda");
             //System.out.println("4.- Historial crediticio");
-            r = r / 12 / 100;
+            r = r / 12;
             n = n * 12;
             double M = P * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
             return M;
@@ -72,7 +72,7 @@ public class SistemaService {
             //System.out.println("2.- Comprobante de ingresos");
             //System.out.println("3.- Certificado de avalúo");
             //System.out.println("4.- Plan de negocios");
-            r = r / 12 / 100;
+            r = r / 12;
             n = n * 12;
             double M = P * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
             return M;
@@ -83,7 +83,7 @@ public class SistemaService {
             //System.out.println("1.- Comprobante de ingresos");
             //System.out.println("2.- Presupuesto de la remodelación\n");
             //System.out.println("3.- Certificado de avalúo actualizado");
-            r = r / 12 / 100;
+            r = r / 12;
             n = n * 12;
             double M = P * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
             return M;
